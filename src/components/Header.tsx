@@ -19,7 +19,7 @@ const Header = () => {
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-20">
           <div className="flex items-center gap-3">
-            <img src={logo} alt="Laxmi Chemicals" className="h-12 w-12" />
+            <img src={logo} alt="Laxmi Chemicals" className="h-12 w-28 rounded-lg shadow-md" />
             <div>
               <h1 className="text-xl font-bold text-primary">Laxmi Chemicals</h1>
               <p className="text-xs text-muted-foreground">Since 2006</p>
@@ -46,7 +46,7 @@ const Header = () => {
             >
               Contact
             </button>
-            <a href="https://wa.me/919886174335" target="_blank" rel="noopener noreferrer">
+            <a href="https://wa.me/919886174335?text=Hello%2C%20I%20would%20like%20to%20inquire%20about%20your%20chemical%20products." target="_blank" rel="noopener noreferrer">
               <Button variant="default" size="sm" className="gap-2">
                 <Phone className="h-4 w-4" />
                 WhatsApp Us
@@ -86,7 +86,7 @@ const Header = () => {
               >
                 Contact
               </button>
-              <a href="https://wa.me/919886174335" target="_blank" rel="noopener noreferrer">
+              <a href="https://wa.me/9886174335?text=Hello%2C%20I%20would%20like%20to%20inquire%20about%20your%20chemical%20products." target="_blank" rel="noopener noreferrer">
                 <Button variant="default" size="sm" className="w-full gap-2">
                   <Phone className="h-4 w-4" />
                   WhatsApp Us

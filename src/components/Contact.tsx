@@ -7,7 +7,7 @@ const contactInfo = [
     icon: MapPin,
     title: "Address",
     content: "#B-4, Hebbal Industrial Area, Mysore-570016",
-    link: "https://maps.google.com/?q=Hebbal+Industrial+Area+Mysore"
+    link: "https://maps.app.goo.gl/emAWUCsEAtEyh33y7"
   },
   {
     icon: Phone,
@@ -19,7 +19,7 @@ const contactInfo = [
     icon: Mail,
     title: "Email",
     content: "laxmichem7@gmail.com",
-    link: "mailto:laxmichem7@gmail.com"
+    link: "https://mail.google.com/mail/?view=cm&fs=1&to=laxmichem7@gmail.com&su=Inquiry%20about%20Chemical%20Products"
   }
 ];
 
@@ -85,7 +85,7 @@ const Contact = () => {
                     WhatsApp Now
                   </Button>
                 </a>
-                <a href="mailto:laxmichem7@gmail.com">
+                <a href="https://mail.google.com/mail/?view=cm&fs=1&to=laxmichem7@gmail.com&su=Inquiry%20about%20Chemical%20Products" target="_blank" rel="noopener noreferrer">
                   <Button size="lg" variant="outline" className="gap-2 w-full sm:w-auto">
                     <Send className="h-5 w-5" />
                     Send Email

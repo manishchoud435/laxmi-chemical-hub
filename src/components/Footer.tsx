@@ -11,7 +11,7 @@ const Footer = () => {
           {/* Company Info */}
           <div>
             <div className="flex items-center gap-3 mb-4">
-              <img src={logo} alt="Laxmi Chemicals" className="h-10 w-10 brightness-0 invert" />
+              <img src={logo} alt="Laxmi Chemicals" className="h-12 w-28 rounded-lg" />
               <div>
                 <h3 className="text-xl font-bold">Laxmi Chemicals</h3>
                 <p className="text-sm text-primary-foreground/80">Since 2006</p>
