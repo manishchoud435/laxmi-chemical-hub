@@ -1,25 +1,81 @@
 import { useState } from "react";
 import { Search, ChevronDown, ChevronUp } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
+const CircuitBoardIcon = () => (
+  <svg viewBox="0 0 24 24" fill="none" className="w-8 h-8">
+    <rect
+      x="3"
+      y="3"
+      width="18"
+      height="18"
+      rx="2"
+      fill="#4ade80"
+      stroke="#166534"
+      strokeWidth="1.5"
+    />
+    <rect
+      x="8"
+      y="8"
+      width="4"
+      height="4"
+      rx="0.5"
+      fill="#fbbf24"
+      stroke="#78350f"
+      strokeWidth="1"
+    />
+    <line x1="10" y1="8" x2="10" y2="6" stroke="#166534" strokeWidth="1" />
+    <line x1="10" y1="12" x2="10" y2="14" stroke="#166534" strokeWidth="1" />
+    <line x1="8" y1="10" x2="6" y2="10" stroke="#166534" strokeWidth="1" />
+    <line x1="12" y1="10" x2="14" y2="10" stroke="#166534" strokeWidth="1" />
+    <circle
+      cx="17"
+      cy="7"
+      r="1.5"
+      fill="#1e3a8a"
+      stroke="#166534"
+      strokeWidth="1"
+    />
+    <circle
+      cx="17"
+      cy="17"
+      r="1.5"
+      fill="#1e3a8a"
+      stroke="#166534"
+      strokeWidth="1"
+    />
+    <line x1="14" y1="10" x2="17" y2="7" stroke="#166534" strokeWidth="1" />
+    <rect
+      x="15"
+      y="14"
+      width="3"
+      height="2"
+      rx="0.5"
+      fill="#fbbf24"
+      stroke="#78350f"
+      strokeWidth="0.8"
+    />
+    <line
+      x1="7"
+      y1="15"
+      x2="12"
+      y2="15"
+      stroke="#166534"
+      strokeWidth="1"
+      strokeDasharray="1 1"
+    />
+  </svg>
+);
+
 const productCategories = [
-  {
-    title: "Plywood and Laminate",
-    products: ["Formaldehyde", "Phenol Crystal"],
-    icon: "🏗️"
-  },
-  {
-    title: "Coating Paints",
-    products: ["Ethyl Acetate", "Emulsifier", "Pure Solvents"],
-    icon: "🎨"
-  },
-  {
-    title: "New Products",
-    products: ["Tri Chloro Ethylene", "Ortho Xylene"],
-    icon: "✨"
-  },
   {
     title: "Pharma Chemicals",
     products: [
@@ -52,9 +108,18 @@ const productCategories = [
       "Disopropyl Ether",
       "Isobutanol",
       "THF",
-      "N-Propanol"
+      "N-Propanol",
     ],
-    icon: "💊"
+    icon: "💊",
+  },
+  {
+    title: "Electronics & PCB Board Cleaning Chemicals",
+    products: [
+      "Isopropyl Alcohol (IPA)",
+      "Trichloroethylene (TCE)",
+      "No Clean Flux",
+    ],
+    icon: <CircuitBoardIcon />,
   },
   {
     title: "Cosmetics Products",
@@ -64,14 +129,14 @@ const productCategories = [
       "Di Propylene Glycol",
       "Methanol",
       "Polyethylene Glycol",
-      "Triethanolamine"
+      "Triethanolamine",
     ],
-    icon: "💄"
+    icon: "✨",
   },
   {
     title: "Solvents",
     products: ["Lead", "ISO Propyl Alcohol Orderless"],
-    icon: "⚗️"
+    icon: "⚗️",
   },
   {
     title: "Rubber Chemicals",
@@ -93,9 +158,9 @@ const productCategories = [
       "Silicon Emulsion",
       "MIBK",
       "DOP",
-      "CPW"
+      "CPW",
     ],
-    icon: "🔬"
+    icon: "🔬",
   },
   {
     title: "Agro Chemicals",
@@ -103,19 +168,30 @@ const productCategories = [
       "Mono Chloro Benzene",
       "N Butanol",
       "Sodium Chlorate",
-      "Sodium Fluoborate"
+      "Sodium Fluoborate",
     ],
-    icon: "🌾"
+    icon: "🌾",
   },
   {
     title: "Plasticizer and Food Chemicals",
-    products: [
-      "Butyl Carbitol",
-      "EDTA Tetra Sodium",
-      "Sorbitol"
-    ],
-    icon: "🧪"
-  }
+    products: ["Butyl Carbitol", "EDTA Tetra Sodium", "Sorbitol"],
+    icon: "🧪",
+  },
+  {
+    title: "Plywood and Laminate",
+    products: ["Formaldehyde", "Phenol Crystal"],
+    icon: "🏗️",
+  },
+  {
+    title: "Coating Paints",
+    products: ["Ethyl Acetate", "Emulsifier", "Pure Solvents"],
+    icon: "🎨",
+  },
+  // {
+  //   title: "New Products",
+  //   products: ["Tri Chloro Ethylene"],
+  //   icon: "✨",
+  // },
 ];
 
 const ProductCatalog = () => {
@@ -123,19 +199,19 @@ const ProductCatalog = () => {
   const [expandedCategories, setExpandedCategories] = useState<string[]>([]);
 
   const toggleCategory = (title: string) => {
-    setExpandedCategories(prev =>
-      prev.includes(title)
-        ? prev.filter(t => t !== title)
-        : [...prev, title]
+    setExpandedCategories((prev) =>
+      prev.includes(title) ? prev.filter((t) => t !== title) : [...prev, title]
     );
   };
 
-  const filteredCategories = productCategories.map(category => ({
-    ...category,
-    products: category.products.filter(product =>
-      product.toLowerCase().includes(searchTerm.toLowerCase())
-    )
-  })).filter(category => category.products.length > 0);
+  const filteredCategories = productCategories
+    .map((category) => ({
+      ...category,
+      products: category.products.filter((product) =>
+        product.toLowerCase().includes(searchTerm.toLowerCase())
+      ),
+    }))
+    .filter((category) => category.products.length > 0);
 
   return (
     <section id="products" className="py-20 bg-muted/30">
@@ -179,10 +255,20 @@ const ProductCatalog = () => {
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <span className="text-3xl">{category.icon}</span>
+                    <div className="flex items-center justify-center">
+                      {typeof category.icon === "string" ? (
+                        <span className="text-3xl">{category.icon}</span>
+                      ) : (
+                        category.icon
+                      )}
+                    </div>
                     <div>
-                      <CardTitle className="text-lg">{category.title}</CardTitle>
-                      <CardDescription>{category.products.length} products</CardDescription>
+                      <CardTitle className="text-lg">
+                        {category.title}
+                      </CardTitle>
+                      <CardDescription>
+                        {category.products.length} products
+                      </CardDescription>
                     </div>
                   </div>
                   {expandedCategories.includes(category.title) ? (
@@ -214,7 +300,9 @@ const ProductCatalog = () => {
 
         {filteredCategories.length === 0 && (
           <div className="text-center py-12">
-            <p className="text-muted-foreground">No products found matching "{searchTerm}"</p>
+            <p className="text-muted-foreground">
+              No products found matching "{searchTerm}"
+            </p>
           </div>
         )}
       </div>
