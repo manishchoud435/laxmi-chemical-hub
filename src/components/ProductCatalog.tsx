@@ -79,21 +79,9 @@ const productCategories = [
   {
     title: "Pharma Chemicals",
     products: [
-      "Mica Ester",
-      "Erythromycin",
-      "Sodium Benzene Sulphinate-250",
-      "Phosphorous Pentachloride",
-      "Choline Chloride",
-      "Di Ethyl Ether",
-      "Acetonitrile",
       "Hydrogen Peroxide (50%)",
-      "Pyridine",
       "Acetone",
-      "Hydrazine Hydrate",
-      "Heptane",
       "Tertiary Butanol",
-      "N-Heptane",
-      "Disopropyl Ether",
       "Isobutanol",
       "THF",
       "N-Propanol",
@@ -116,7 +104,6 @@ const productCategories = [
       "M-E-G",
       "Di Propylene Glycol",
       "Polyethylene Glycol",
-      "Triethanolamine",
     ],
     icon: "✨",
   },
@@ -131,12 +118,8 @@ const productCategories = [
       "Caustic Potash",
       "Methyl Ethyl Ketone",
       "Methylene Dichloride",
-      "Paraffin Wax",
       "Zinc Oxide",
       "Zinc Stearate",
-      "Stearic Acid",
-      "Silicon Defoamer",
-      "Silica Gel",
       "Toluene",
       "Silicon Emulsion",
       "MIBK",
@@ -157,11 +140,6 @@ const productCategories = [
     icon: "🧪",
   },
   {
-    title: "Plywood and Laminate",
-    products: ["Formaldehyde", "Phenol Crystal"],
-    icon: "🏗️",
-  },
-  {
     title: "Coating Paints",
     products: [
       "Ethyl Acetate",
@@ -173,11 +151,6 @@ const productCategories = [
     ],
     icon: "🎨",
   },
-  // {
-  //   title: "New Products",
-  //   products: ["Tri Chloro Ethylene"],
-  //   icon: "✨",
-  // },
 ];
 
 const ProductCatalog = () => {
