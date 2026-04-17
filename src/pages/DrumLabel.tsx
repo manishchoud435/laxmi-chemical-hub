@@ -21,7 +21,7 @@ type Step = "select-product" | "fill-form" | "choose-layout" | "preview";
 
 /* ── Component ─────────────────────────────────────── */
 
-const PASS = "laxmichem7";
+const PASS = "laxmichem72";
 
 const DrumLabel = () => {
   const navigate = useNavigate();
@@ -265,7 +265,7 @@ const DrumLabel = () => {
               <input
                 className="label-form__input"
                 required
-                placeholder="e.g. IPA / 176"
+                placeholder="e.g. 4176"
                 value={form.invoice}
                 onChange={(e) => handleFormChange("invoice", e.target.value)}
               />
