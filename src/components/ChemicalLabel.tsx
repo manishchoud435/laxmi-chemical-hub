@@ -125,6 +125,7 @@ const ChemicalLabel = ({
             <DataRow label="NET QTY" value={netQty} />
           </div>
 
+{/*
           <div className="cl__qr">
             <QrPlaceholder />
             <div className="cl__qr-text">
@@ -133,6 +134,7 @@ const ChemicalLabel = ({
               <div className="cl__qr-sub">&amp; product certification</div>
             </div>
           </div>
+*/}
         </div>
 
         {/* ── RIGHT COLUMN ───────────────────────── */}
