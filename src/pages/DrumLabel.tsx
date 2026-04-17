@@ -21,8 +21,14 @@ type Step = "select-product" | "fill-form" | "choose-layout" | "preview";
 
 /* ── Component ─────────────────────────────────────── */
 
+const PASS = "laxmichem7";
+
 const DrumLabel = () => {
   const navigate = useNavigate();
+
+  const [authenticated, setAuthenticated] = useState(false);
+  const [password, setPassword] = useState("");
+  const [authError, setAuthError] = useState(false);
 
   const [step, setStep] = useState<Step>("select-product");
   const [search, setSearch] = useState("");
@@ -102,6 +108,55 @@ const DrumLabel = () => {
   const currentIndex = steps.findIndex((s) => s.key === step);
 
   /* ── Render ────────────────────────────────────────── */
+
+  const handleAuth = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (password === PASS) {
+      setAuthenticated(true);
+      setAuthError(false);
+    } else {
+      setAuthError(true);
+    }
+  };
+
+  if (!authenticated) {
+    return (
+      <div className="drum-label-page">
+        <div className="wizard-card" style={{ textAlign: "center", maxWidth: 400 }}>
+          <h2 className="wizard-card__title">Restricted Access</h2>
+          <p style={{ fontSize: 13, color: "#666", margin: "8px 0 20px" }}>
+            Enter the password to access the label generator.
+          </p>
+          <form onSubmit={handleAuth}>
+            <input
+              className="label-form__input"
+              type="password"
+              placeholder="Enter password"
+              value={password}
+              onChange={(e) => { setPassword(e.target.value); setAuthError(false); }}
+              style={{ width: "100%", marginBottom: 12, boxSizing: "border-box" }}
+              autoFocus
+            />
+            {authError && (
+              <p style={{ color: "#C8102E", fontSize: 12, margin: "0 0 10px" }}>
+                Incorrect password. Please try again.
+              </p>
+            )}
+            <button type="submit" className="drum-label-page__btn drum-label-page__btn--print" style={{ width: "100%" }}>
+              Unlock
+            </button>
+          </form>
+          <button
+            className="drum-label-page__btn drum-label-page__btn--back"
+            onClick={() => navigate("/")}
+            style={{ marginTop: 12, width: "100%" }}
+          >
+            &larr; Back to Home
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="drum-label-page">
