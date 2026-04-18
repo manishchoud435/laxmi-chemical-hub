@@ -473,6 +473,7 @@
   flex-direction: column;
   align-items: center;
   gap: 20px;
+  overflow-x: hidden;
 }
 
 .drum-label-page__toolbar {
@@ -955,3 +956,193 @@
     margin: 0;
   }
 }
+
+/* ======================================================
+   Mobile Responsive
+   ====================================================== */
+
+/* Tablet and below (≤ 900px) */
+@media (max-width: 900px) {
+  .drum-label-page {
+    padding: 16px 10px;
+  }
+
+  .wizard-card {
+    width: 100%;
+    padding: 20px 18px;
+  }
+
+  .wizard-card__title {
+    font-size: 17px;
+  }
+
+  .a4-sheet {
+    width: 100%;
+  }
+
+  /* Scale down the label proportionally */
+  .cl {
+    width: 100%;
+  }
+}
+
+/* Phones (≤ 640px) */
+@media (max-width: 640px) {
+  .drum-label-page {
+    padding: 12px 8px;
+    gap: 14px;
+  }
+
+  /* Wizard step indicator — shrink */
+  .wizard-steps {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 6px;
+  }
+
+  .wizard-step__circle {
+    width: 24px;
+    height: 24px;
+    font-size: 11px;
+  }
+
+  .wizard-step__label {
+    font-size: 10px;
+  }
+
+  .wizard-step__line {
+    width: 18px;
+    margin: 0 3px;
+  }
+
+  /* Wizard card */
+  .wizard-card {
+    padding: 16px 14px;
+    border-radius: 6px;
+  }
+
+  .wizard-card__title {
+    font-size: 15px;
+    line-height: 1.3;
+  }
+
+  .wizard-card__subtitle {
+    font-size: 12px;
+  }
+
+  /* Product picker scroll */
+  .product-picker {
+    max-height: 60vh;
+  }
+
+  .product-picker__item {
+    font-size: 12px;
+    padding: 5px 10px;
+  }
+
+  /* Form inputs */
+  .label-form__input,
+  .wizard-search {
+    padding: 10px;
+    font-size: 16px; /* prevent iOS zoom on focus */
+  }
+
+  .label-form__label {
+    font-size: 11px;
+  }
+
+  /* Layout picker – stack */
+  .layout-picker {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .layout-picker__option {
+    width: 100%;
+    padding: 14px 18px;
+    min-width: 0;
+  }
+
+  /* Toolbar buttons */
+  .drum-label-page__toolbar {
+    gap: 8px;
+    width: 100%;
+  }
+
+  .drum-label-page__btn {
+    flex: 1;
+    min-width: 0;
+    padding: 8px 12px;
+    font-size: 12px;
+  }
+
+  /* ---- Label itself – scale down visually ---- */
+  .cl {
+    /* Use a responsive transform so the fixed-pixel label design fits on a phone
+       without redesigning every internal dimension. Keep the content intact and
+       let the transform shrink everything to fit the available width.           */
+    transform-origin: top left;
+    width: 650px;
+    max-width: none;
+  }
+
+  .label-preview,
+  .a4-sheet__inner {
+    width: 100%;
+    overflow-x: hidden;
+  }
+
+  /* Responsive scaling wrapper */
+  .label-preview {
+    --cl-scale: calc((100vw - 20px) / 650);
+  }
+
+  .label-preview .cl {
+    transform: scale(var(--cl-scale));
+    margin-bottom: calc((var(--cl-scale) - 1) * 440px);
+  }
+
+  /* A4 sheet on phone: scale its label children too */
+  .a4-sheet {
+    padding: 8px 10px;
+    aspect-ratio: auto;
+  }
+
+  .a4-sheet__inner {
+    --cl-scale: calc((100vw - 60px) / 650);
+  }
+
+  .a4-sheet__inner .cl {
+    transform: scale(var(--cl-scale));
+    margin-bottom: calc((var(--cl-scale) - 1) * 440px);
+  }
+
+  .a4-sheet__meta-top,
+  .a4-sheet__meta-bottom {
+    font-size: 7px;
+    flex-direction: column;
+    gap: 2px;
+    text-align: center;
+  }
+
+  .a4-sheet__cut-text {
+    font-size: 7px;
+  }
+}
+
+/* Very small phones (≤ 400px) */
+@media (max-width: 400px) {
+  .wizard-step__label {
+    display: none; /* show only circles */
+  }
+
+  .wizard-step__line {
+    width: 12px;
+  }
+
+  .drum-label-page__btn {
+    font-size: 11px;
+    padding: 7px 10px;
+  }
+}
+

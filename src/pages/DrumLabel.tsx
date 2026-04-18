@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import html2pdf from "html2pdf.js";
 import ChemicalLabel from "@/components/ChemicalLabel";
 import { productCategories } from "@/data/products";
 import { getProductSafety } from "@/data/productSafety";
@@ -29,6 +30,9 @@ const DrumLabel = () => {
   const [authenticated, setAuthenticated] = useState(false);
   const [password, setPassword] = useState("");
   const [authError, setAuthError] = useState(false);
+
+  const previewRef = useRef<HTMLDivElement | null>(null);
+  const [downloading, setDownloading] = useState(false);
 
   const [step, setStep] = useState<Step>("select-product");
   const [search, setSearch] = useState("");
@@ -69,6 +73,112 @@ const DrumLabel = () => {
   };
 
   const handlePrint = () => window.print();
+
+  const handleDownloadPdf = async () => {
+    const source = previewRef.current;
+    if (!source) return;
+    setDownloading(true);
+
+    const safeProduct = (form.productName || "label").replace(/[^\w-]+/g, "_");
+    const filename = `${safeProduct}_drum_label.pdf`;
+
+    // Wait for images to load before capture
+    const imgs = Array.from(source.querySelectorAll("img"));
+    await Promise.all(
+      imgs.map((img) =>
+        img.complete
+          ? Promise.resolve()
+          : new Promise<void>((resolve) => {
+              img.addEventListener("load", () => resolve(), { once: true });
+              img.addEventListener("error", () => resolve(), { once: true });
+            })
+      )
+    );
+
+    // Print-equivalent CSS injected into the html2canvas clone so the PDF
+    // renders the same A4 layout the @media print rules produce.
+    const printCss = `
+      body { background: #ffffff !important; margin: 0 !important; padding: 0 !important; }
+
+      /* Undo any mobile CSS scaling transforms */
+      .cl {
+        transform: none !important;
+        width: 650px !important;
+        max-width: none !important;
+        margin: 0 auto !important;
+        box-shadow: none !important;
+      }
+
+      /* Single label layout — matches @media print .label-preview */
+      .label-preview {
+        display: block !important;
+        width: 100% !important;
+        padding: 10mm 0 !important;
+        margin: 0 !important;
+        background: #ffffff !important;
+      }
+
+      /* A4 two-up sheet — strip on-screen chrome, match print look */
+      .a4-sheet {
+        width: 100% !important;
+        aspect-ratio: auto !important;
+        border: none !important;
+        box-shadow: none !important;
+        border-radius: 0 !important;
+        padding: 6mm 8mm !important;
+        background: #ffffff !important;
+      }
+      .a4-sheet__meta-top,
+      .a4-sheet__meta-bottom,
+      .a4-sheet__crop {
+        display: none !important;
+      }
+      .a4-sheet__inner {
+        width: 100% !important;
+        overflow: visible !important;
+      }
+      .a4-sheet__inner .cl {
+        margin: 0 auto !important;
+      }
+
+      /* Wrapper page itself */
+      .drum-label-page {
+        padding: 0 !important;
+        margin: 0 !important;
+        gap: 0 !important;
+        background: #ffffff !important;
+        overflow: visible !important;
+      }
+    `;
+
+    try {
+      await html2pdf()
+        .from(source)
+        .set({
+          margin: 0,
+          filename,
+          image: { type: "jpeg", quality: 0.98 },
+          html2canvas: {
+            scale: 2,
+            useCORS: true,
+            backgroundColor: "#ffffff",
+            windowWidth: 820,
+            logging: false,
+            onclone: (clonedDoc: Document) => {
+              const style = clonedDoc.createElement("style");
+              style.textContent = printCss;
+              clonedDoc.head.appendChild(style);
+            },
+          },
+          jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+        })
+        .save();
+    } catch (err) {
+      console.error("PDF download failed", err);
+    } finally {
+      setDownloading(false);
+    }
+  };
 
   const handleStartOver = () => {
     setStep("select-product");
@@ -186,6 +296,13 @@ const DrumLabel = () => {
               onClick={handleStartOver}
             >
               New Label
+            </button>
+            <button
+              className="drum-label-page__btn drum-label-page__btn--back"
+              onClick={handleDownloadPdf}
+              disabled={downloading}
+            >
+              {downloading ? "Generating..." : "\u2B07 Download PDF"}
             </button>
             <button
               className="drum-label-page__btn drum-label-page__btn--print"
@@ -380,14 +497,14 @@ const DrumLabel = () => {
 
       {/* ── Step 4: Preview (single) ─────────────────── */}
       {step === "preview" && stickersPerPage === 1 && (
-        <div className="label-preview">
+        <div className="label-preview" ref={previewRef}>
           <ChemicalLabel {...labelProps} />
         </div>
       )}
 
       {/* ── Step 4: Preview (2-up A4 sheet) ──────────── */}
       {step === "preview" && stickersPerPage === 2 && (
-        <div className="a4-sheet">
+        <div className="a4-sheet" ref={previewRef}>
           <div className="a4-sheet__meta-top">
             <span>A4 &bull; 210 &times; 297 mm &bull; Portrait &bull; 2 labels / sheet &bull; Laxmi Chemicals</span>
             <span>{form.productName} &bull; Print at 100% &bull; CMYK</span>
