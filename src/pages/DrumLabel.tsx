@@ -703,10 +703,10 @@ const DrumLabel = () => {
 
             <div className="a4-sheet__cut">
               <div className="a4-sheet__cut-line" />
-              <div className="a4-sheet__cut-text">
+              {/* <div className="a4-sheet__cut-text">
                 <span className="a4-sheet__scissors">{"\u2702"}</span>
                 <span>CUT HERE</span>
-              </div>
+              </div> */}
               <div className="a4-sheet__cut-line" />
             </div>
 

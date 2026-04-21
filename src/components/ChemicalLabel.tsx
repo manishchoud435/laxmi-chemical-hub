@@ -1,5 +1,5 @@
 import "./ChemicalLabel.css";
-import laxmiLogo from "@/assets/laxmi-chemicals-logo.png";
+import laxmiLogo from "@/assets/laxmi-chemicals-logo1.png";
 import type { ProductSafety } from "@/data/productSafety";
 
 export interface ChemicalLabelProps {

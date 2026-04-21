@@ -75,9 +75,13 @@
 }
 
 .cl__logo-img {
-  width: 150px;
-  height: auto;
+  width: 130px;
+  height: 48px;
   display: block;
+  border: 2px solid #5D2E8C;
+  border-radius: 2px;
+  padding: 2px;
+  box-sizing: border-box;
 }
 
 .cl__company-name {

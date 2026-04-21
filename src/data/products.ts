@@ -48,6 +48,7 @@ export const productCategories: ProductCategory[] = [
     products: [
       "Caustic Potash (KOH)",
       "Methyl Ethyl Ketone (MEK)",
+      "Methyl Ethyl Ketone 99.80%",
       "Methylene Dichloride (MDC)",
       "Zinc Oxide (ZnO)",
       "Zinc Stearate",
