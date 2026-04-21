@@ -8,11 +8,11 @@
   width: 860px;
   max-width: 100%;
   aspect-ratio: 143 / 94; /* 14.3cm × 9.4cm landscape */
-  border: 1px solid #000;
   overflow: hidden;
   font-family: Arial, Helvetica, "Helvetica Neue", sans-serif;
   background: #fff;
   color: #000;
+  font-weight: 700; /* bold baseline (Arial's true Bold) for glossy print clarity */
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
@@ -58,8 +58,6 @@
 }
 
 .cl__col--2 {
-  border-left: 0.5px solid #ddd;
-  border-right: 0.5px solid #ddd;
 }
 
 /* ═════ COLUMN 1 — Company Info ═════ */
@@ -88,12 +86,14 @@
   font-weight: 900;
   letter-spacing: 0.5px;
   margin-top: 2px;
+  line-height: 1.1;
 }
 
 .cl__address-line {
   font-size: 10px;
   color: #000;
-  line-height: 1.4;
+  line-height: 1.15;
+  font-weight: 700;
 }
 
 .cl__email {
@@ -103,9 +103,11 @@
 .cl__address-phone {
   font-size: 10px;
   color: #000;
-  margin-top: 2px;
+  margin-top: 1px;
   display: flex;
   align-items: center;
+  font-weight: 700;
+  line-height: 1.15;
 }
 
 .cl__wa-icon {
@@ -118,10 +120,10 @@
 
 /* ── Data Card (rounded black border) ─────────────── */
 .cl__data-card {
-  border: 1.5px solid #000;
-  border-radius: 12px;
-  padding: 8px 12px;
-  margin-top: 6px;
+  border: 2px solid #000;
+  border-radius: 20px;
+  padding: 10px 14px;
+  margin-top: 8px;
 }
 
 .cl__data-row {
@@ -129,6 +131,22 @@
   align-items: baseline;
   padding: 2px 0;
   font-size: 10px;
+}
+
+/* MAKE row — pinned to last; reserves space for up to 3 wrapped lines */
+.cl__data-row--make {
+  align-items: flex-start;
+  min-height: 48px;
+  padding-top: 4px;
+}
+
+.cl__data-row--make .cl__data-val {
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .cl__data-key {
@@ -151,7 +169,7 @@
   flex: 1;
   color: #000;
   word-break: break-word;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .cl__data-val--red {
@@ -190,6 +208,7 @@
   color: #000;
   line-height: 1.35;
   margin: 0;
+  font-weight: 700;
 }
 
 .cl__section-body div {
@@ -200,12 +219,14 @@
 .cl__dangerous-wrap {
   margin-top: auto;
   padding-top: 6px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
 }
 
 .cl__dangerous {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: inline-block;
+  width: fit-content;
   border: 2px solid #000;
   border-radius: 8px;
   background: #fff;
@@ -214,23 +235,28 @@
   font-size: 22px;
   font-weight: 900;
   letter-spacing: 2px;
-  padding: 6px 20px;
+  padding: 6px 22px;
   text-transform: uppercase;
+  line-height: 1.1;
+  white-space: nowrap;
+  text-align: center;
 }
 
-/* ── Pictograms (bottom of col 3) ─────────────────── */
+/* ── Pictograms (bottom of col 3) — inline row ──── */
 .cl__pictograms {
   margin-top: auto;
   padding-top: 6px;
   display: flex;
+  flex-direction: row;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: center;
   gap: 10px;
+  overflow: hidden;
 }
 
 .cl__pictogram {
-  width: 74px;
-  height: 74px;
+  width: 92px;
+  height: 92px;
   flex-shrink: 0;
 }
 
@@ -248,6 +274,7 @@
   align-items: center;
   justify-content: center;
   padding: 0 20px;
+  border-radius: 10px;
 }
 
 .cl__footer-text {

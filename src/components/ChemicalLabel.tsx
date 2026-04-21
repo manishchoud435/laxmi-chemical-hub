@@ -22,26 +22,49 @@ const LaxmiLogo = () => (
 );
 
 const GhsFlame = () => (
-  <svg viewBox="0 0 84 84" xmlns="http://www.w3.org/2000/svg">
-    <polygon points="42,0 84,42 42,84 0,42" fill="#FFF" stroke="#EF1A1A" strokeWidth="5" strokeLinejoin="round" />
-    <path d="M42 18 C 37 28, 28 33, 28 48 C 28 58, 33 65, 40 68 C 37 62, 39 55, 44 52 C 47 57, 45 63, 47 68 C 53 65, 58 58, 57 50 C 57 43, 52 39, 49 32 C 47 37, 44 35, 42 18 Z" fill="#111" />
-    <rect x="30" y="62" width="24" height="3" rx="1" fill="#111" />
+  <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    {/* Red-bordered diamond */}
+    <polygon
+      points="50,4 96,50 50,96 4,50"
+      fill="#FFF"
+      stroke="#D32F2F"
+      strokeWidth="7"
+      strokeLinejoin="round"
+    />
+    {/* Flame (taller — extends upward, same width) */}
+    <path
+      d="M50 18
+         C 45 32, 37 40, 37 58
+         C 37 67, 43 73, 49 74
+         C 46 69, 48 63, 52 60
+         C 55 64, 54 69, 56 74
+         C 62 72, 65 66, 64 58
+         C 64 48, 59 44, 57 36
+         C 55 44, 52 42, 50 18 Z"
+      fill="#000"
+    />
+    {/* Horizontal base bar under flame (narrower, fits inside diamond) */}
+    <rect x="38" y="74" width="24" height="4" rx="1.5" fill="#000" />
   </svg>
 );
 
 const GhsExclamationTriangle = () => (
-  <svg viewBox="0 0 84 84" xmlns="http://www.w3.org/2000/svg">
+  <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
     {/* Equilateral triangle with slightly rounded corners */}
     <path
-      d="M42 6 L78 70 Q79 74, 75 74 L9 74 Q5 74, 6 70 Z"
+      d="M50 8
+         L91 80
+         Q94 86, 88 86
+         L12 86
+         Q6 86, 9 80 Z"
       fill="#FFF"
-      stroke="#EF1A1A"
-      strokeWidth="5"
+      stroke="#D32F2F"
+      strokeWidth="7"
       strokeLinejoin="round"
     />
-    {/* Exclamation mark */}
-    <rect x="38.5" y="28" width="7" height="24" rx="1.5" fill="#111" />
-    <circle cx="42" cy="62" r="3.8" fill="#111" />
+    {/* Bold exclamation mark */}
+    <rect x="46" y="32" width="8" height="32" rx="2" fill="#000" />
+    <circle cx="50" cy="75" r="4.5" fill="#000" />
   </svg>
 );
 
@@ -88,6 +111,21 @@ const splitInhalationIngestion = (combined: string): [string, string] => {
   return [inhalation, ingestion];
 };
 
+/** Put any trailing "Seek/Get … medical attention" sentence on a new line */
+const formatFirstAid = (text: string) => {
+  const match = text.match(/^(.*?)(\s*(?:Seek|Get)\s+[^.]*?medical attention[^.]*\.\s*)$/i);
+  if (match) {
+    return (
+      <>
+        {match[1].trim()}
+        <br />
+        {match[2].trim()}
+      </>
+    );
+  }
+  return text;
+};
+
 /* ── Label Component ─────────────────────────────── */
 
 const ChemicalLabel = ({
@@ -130,14 +168,18 @@ const ChemicalLabel = ({
           </div>
 
           <div className="cl__data-card">
-            <DataRow label="MFG DATE" value={mfgDate} red alwaysShow />
             <DataRow label="INVOICE" value={invoice} red alwaysShow />
             <DataRow label="BATCH" value={batchNo} alwaysShow />
-            <DataRow label="MAKE" value={make} alwaysShow />
+            <DataRow label="MFG DATE" value={mfgDate} red alwaysShow />
             <DataRow label="EXP DATE" value={expDate} red alwaysShow />
             <DataRow label="NET QTY" value={netQty} />
             <DataRow label="TARE QTY" value={tareQty} />
             <DataRow label="GROSS QTY" value={grossQty} />
+            <div className="cl__data-row cl__data-row--make">
+              <span className="cl__data-key">MAKE</span>
+              <span className="cl__data-colon">:</span>
+              <span className="cl__data-val">{make}</span>
+            </div>
           </div>
         </div>
 
@@ -151,16 +193,36 @@ const ChemicalLabel = ({
           <div className="cl__section">
             <div className="cl__section-title">PRECAUTIONARY STATEMENT</div>
             <div className="cl__section-body">
-              {safety.precautionary.map((line, i) => (
-                <div key={i}>{line}</div>
-              ))}
+              {safety.precautionary
+                .flatMap((item) => item.split(/(?<=\.)\s+/))
+                .map((s) => s.trim())
+                .filter(Boolean)
+                .map((sentence, i) => (
+                  <div key={i}>{sentence}</div>
+                ))}
             </div>
           </div>
 
           <div className="cl__section">
             <div className="cl__section-title">FIRST AID MEASURES</div>
             <div className="cl__section-subtitle">EYE CONTACT</div>
-            <p className="cl__section-body">{safety.firstAidEye}</p>
+            <p className="cl__section-body">{formatFirstAid(safety.firstAidEye)}</p>
+          </div>
+
+          {safety.fireClass && (
+            <div className="cl__section">
+              <div className="cl__section-subtitle">FIRE CLASS</div>
+              <p className="cl__section-body">{safety.fireClass}</p>
+            </div>
+          )}
+
+          <div className="cl__section">
+            <div className="cl__section-subtitle">KEEP OUT OF REACH OF CHILDREN</div>
+            <div className="cl__section-body">
+              <div>Store in original container.</div>
+              <div>Keep container tightly closed.</div>
+              <div>Keep locked and away from children.</div>
+            </div>
           </div>
 
           <div className="cl__dangerous-wrap">
@@ -189,9 +251,23 @@ const ChemicalLabel = ({
             </div>
           )}
 
+          {safety.storage && (
+            <div className="cl__section">
+              <div className="cl__section-subtitle">STORAGE</div>
+              <p className="cl__section-body">{safety.storage}</p>
+            </div>
+          )}
+
+          {safety.disposalSpill && (
+            <div className="cl__section">
+              <div className="cl__section-subtitle">DISPOSAL / SPILL</div>
+              <p className="cl__section-body">{safety.disposalSpill}</p>
+            </div>
+          )}
+
           <div className="cl__pictograms">
-            <div className="cl__pictogram"><GhsFlame /></div>
             <div className="cl__pictogram cl__pictogram--triangle"><GhsExclamationTriangle /></div>
+            <div className="cl__pictogram"><GhsFlame /></div>
           </div>
         </div>
       </div>

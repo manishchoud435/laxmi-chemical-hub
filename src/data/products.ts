@@ -9,7 +9,8 @@ export const productCategories: ProductCategory[] = [
     title: "Pharma Chemicals",
     products: [
       "Hydrogen Peroxide (50%)",
-      "Acetone",
+      "Acetone (ACT)",
+      "Acetone 99.70%",
       "Tertiary Butanol",
       "Isobutanol",
       "THF",
@@ -20,7 +21,8 @@ export const productCategories: ProductCategory[] = [
   {
     title: "Electronics & PCB Board Cleaning Chemicals",
     products: [
-      "Isopropyl Alcohol (IPA)",
+      "Iso propyl Alcohol (IPA)",
+      "Iso propyl Alcohol 99.8%",
       "Trichloroethylene (TCE)",
       "No Clean Flux",
     ],
@@ -29,10 +31,10 @@ export const productCategories: ProductCategory[] = [
   {
     title: "Cosmetics Products",
     products: [
-      "Isopropyl Alcohol",
+      "Iso propyl Alcohol (IPA)",
       "M-E-G",
-      "Di Propylene Glycol",
-      "Polyethylene Glycol",
+      "Di Propylene Glycol (DPG)",
+      "Polyethylene Glycol (PEG)",
     ],
     icon: "\u2728",
   },
@@ -44,12 +46,13 @@ export const productCategories: ProductCategory[] = [
   {
     title: "Rubber Chemicals",
     products: [
-      "Caustic Potash",
-      "Methyl Ethyl Ketone",
-      "Methylene Dichloride",
-      "Zinc Oxide",
+      "Caustic Potash (KOH)",
+      "Methyl Ethyl Ketone (MEK)",
+      "Methylene Dichloride (MDC)",
+      "Zinc Oxide (ZnO)",
       "Zinc Stearate",
-      "Toluene",
+      "Toluene (TOL)",
+      "Toluene 99.80%",
       "Silicon Emulsion",
       "MIBK",
     ],
@@ -57,7 +60,7 @@ export const productCategories: ProductCategory[] = [
   },
   {
     title: "Agro Chemicals",
-    products: ["Mono Chloro Benzene", "N Butanol"],
+    products: ["Mono Chloro Benzene (MCB)", "N Butanol (NBA)"],
     icon: "\uD83C\uDF3E",
   },
   {
@@ -68,7 +71,8 @@ export const productCategories: ProductCategory[] = [
   {
     title: "Coating Paints",
     products: [
-      "Ethyl Acetate",
+      "Ethyl Acetate (EA)",
+      "Ethyl Acetate 99.70%",
       "Pure Solvents",
       "Paint Thinner",
       "NC Thinner",
