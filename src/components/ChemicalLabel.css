@@ -8,7 +8,6 @@
   width: 860px;
   max-width: 100%;
   aspect-ratio: 143 / 94; /* 14.3cm × 9.4cm landscape */
-  border: 1px solid #000;
   overflow: hidden;
   font-family: Arial, Helvetica, "Helvetica Neue", sans-serif;
   background: #fff;
@@ -275,6 +274,7 @@
   align-items: center;
   justify-content: center;
   padding: 0 20px;
+  border-radius: 10px;
 }
 
 .cl__footer-text {
