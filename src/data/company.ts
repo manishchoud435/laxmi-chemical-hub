@@ -9,7 +9,7 @@ export const COMPANY = {
   bank: {
     name:        "Canara Bank",
     accountName: "LAXMI CHEMICALS",
-    accountNo:   "25010201000849",
+    accountNo:   "2510201000849",
     ifsc:        "CNRB0002510",
     branch:      "SSI Branch, Mysore",
     accountType: "Current Account",

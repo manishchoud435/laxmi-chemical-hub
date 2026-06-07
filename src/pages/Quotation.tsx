@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/components/ui/sonner";
-import { QuotationPreview, type QuotationProductItem } from "@/components/quotation/QuotationPreview";
+import { QuotationPreview, type QuotationProductItem, type DocType } from "@/components/quotation/QuotationPreview";
 
 const quotationSchema = z.object({
   quotationNo:      z.string().optional(),
@@ -102,6 +102,7 @@ export default function Quotation() {
 
   const { fields, append, remove } = useFieldArray({ name: "products", control });
 
+  const [docType, setDocType]         = useState<DocType>("quotation");
   const [theme, setTheme]             = useState<"light" | "dark">("light");
   const [downloading, setDownloading] = useState(false);
   const [draftStatus, setDraftStatus] = useState<string>("");
@@ -226,10 +227,11 @@ export default function Quotation() {
     const source = previewRef.current;
     if (!source) return;
     setDownloading(true);
-    const quotationNo = formValues.quotationNo?.trim();
-    const buyerName   = formValues.buyerName?.trim();
-    const parts       = [quotationNo, buyerName].filter(Boolean);
-    const filename    = `${parts.length ? parts.join("_") : "quotation"}_quotation.pdf`.replace(/[^a-zA-Z0-9-_.]/g, "_");
+    const docNo    = formValues.quotationNo?.trim();
+    const buyer    = formValues.buyerName?.trim();
+    const typeSuffix = docType === "proforma" ? "proforma_invoice" : "quotation";
+    const parts    = [docNo, buyer].filter(Boolean);
+    const filename = `${parts.length ? parts.join("_") : typeSuffix}_${typeSuffix}.pdf`.replace(/[^a-zA-Z0-9-_.]/g, "_");
     const imgs = Array.from(source.querySelectorAll("img"));
     await Promise.all(imgs.map((img) =>
       img.complete
@@ -312,12 +314,48 @@ export default function Quotation() {
 
             {/* ── Quotation Reference + Buyer Info ── */}
             <section className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-[var(--shadow-card)] dark:border-slate-800 dark:bg-slate-900">
-              <p className="text-sm uppercase tracking-[0.3em] text-slate-500 dark:text-slate-400">Quotation Reference</p>
-              <h2 className="mt-2 text-2xl font-semibold">Quotation Details</h2>
+              <p className="text-sm uppercase tracking-[0.3em] text-slate-500 dark:text-slate-400">Document Type</p>
+              <h2 className="mt-2 text-2xl font-semibold">Select Document</h2>
+              <div className="mt-4 flex gap-3">
+                <button
+                  type="button"
+                  onClick={() => setDocType("quotation")}
+                  className={`rounded-xl border px-5 py-2.5 text-sm font-semibold transition-colors ${
+                    docType === "quotation"
+                      ? "border-primary bg-primary text-white"
+                      : "border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300"
+                  }`}
+                >
+                  Quotation
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setDocType("proforma")}
+                  className={`rounded-xl border px-5 py-2.5 text-sm font-semibold transition-colors ${
+                    docType === "proforma"
+                      ? "border-primary bg-primary text-white"
+                      : "border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300"
+                  }`}
+                >
+                  Proforma Invoice
+                </button>
+              </div>
+
+              <p className="mt-8 text-sm uppercase tracking-[0.3em] text-slate-500 dark:text-slate-400">
+                {docType === "proforma" ? "Proforma Invoice Reference" : "Quotation Reference"}
+              </p>
+              <h2 className="mt-2 text-2xl font-semibold">
+                {docType === "proforma" ? "Proforma Invoice Details" : "Quotation Details"}
+              </h2>
               <div className="mt-6 grid gap-4 sm:grid-cols-2">
                 <div className="grid gap-2">
-                  <label className="text-sm font-medium text-slate-700 dark:text-slate-200">Quotation No.</label>
-                  <Input {...register("quotationNo")} placeholder="e.g. LXM/2025-26/001" />
+                  <label className="text-sm font-medium text-slate-700 dark:text-slate-200">
+                    {docType === "proforma" ? "Proforma Invoice No." : "Quotation No."}
+                  </label>
+                  <Input
+                    {...register("quotationNo")}
+                    placeholder={docType === "proforma" ? "e.g. LXM/PI/2025-26/001" : "e.g. LXM/2025-26/001"}
+                  />
                   {errors.quotationNo && <p className="text-xs text-destructive">{errors.quotationNo.message}</p>}
                 </div>
                 <div className="grid gap-2">
@@ -532,7 +570,9 @@ export default function Quotation() {
           {/* ── Sidebar: summary + export ── */}
           <aside className="space-y-6">
             <section className="sticky top-24 rounded-[28px] border border-slate-200 bg-white p-6 shadow-[var(--shadow-card)] dark:border-slate-800 dark:bg-slate-900">
-              <p className="text-sm uppercase tracking-[0.3em] text-slate-500 dark:text-slate-400">Quotation Summary</p>
+              <p className="text-sm uppercase tracking-[0.3em] text-slate-500 dark:text-slate-400">
+                {docType === "proforma" ? "Proforma Invoice Summary" : "Quotation Summary"}
+              </p>
               <div className="mt-4 grid gap-4 text-sm text-slate-700 dark:text-slate-300">
                 <div className="flex items-center justify-between rounded-3xl bg-slate-50 p-4 dark:bg-slate-950">
                   <span>Taxable Amount</span>
@@ -549,7 +589,11 @@ export default function Quotation() {
               </div>
               <div className="mt-6 flex flex-col gap-3">
                 <Button variant="secondary" onClick={handleDownloadPdf} disabled={downloading}>
-                  {downloading ? "Generating PDF…" : "Download Quotation PDF"}
+                  {downloading
+                    ? "Generating PDF…"
+                    : docType === "proforma"
+                    ? "Download Proforma Invoice PDF"
+                    : "Download Quotation PDF"}
                 </Button>
                 <Button variant="outline" onClick={() => window.print()}>
                   Print Friendly View
@@ -570,6 +614,7 @@ export default function Quotation() {
         <section className="rounded-[28px] border border-slate-200 bg-white p-4 shadow-[var(--shadow-card)] dark:border-slate-800 dark:bg-slate-900">
           <div ref={previewRef}>
             <QuotationPreview
+              docType={docType}
               companyLogoUrl={logo}
               companyName={COMPANY.name}
               companyAddress={COMPANY.address}

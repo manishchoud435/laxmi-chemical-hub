@@ -10,7 +10,10 @@ export interface QuotationProductItem {
   packing: string;
 }
 
+export type DocType = "quotation" | "proforma";
+
 export interface QuotationPreviewProps {
+  docType?: DocType;
   companyLogoUrl?: string;
   companyName: string;
   companyAddress: string;
@@ -103,6 +106,7 @@ function InfoRow({ label, value }: { label: string; value?: string }) {
 
 // ────────────────────────────────────────────────────────────────
 export const QuotationPreview = ({
+  docType = "quotation",
   companyLogoUrl,
   companyName,
   companyAddress,
@@ -136,6 +140,9 @@ export const QuotationPreview = ({
   bankIfsc,
   bankBranch,
 }: QuotationPreviewProps) => {
+  const isProforma = docType === "proforma";
+  const docNoLabel = isProforma ? "Proforma Invoice No." : "Quotation No.";
+
   const subtotal   = products.reduce((s, i) => s + Number(i.quantity || 0) * Number(i.rate || 0), 0);
   const totalGst   = products.reduce((s, i) => s + Number(i.quantity || 0) * Number(i.rate || 0) * (Number(i.gst || 0) / 100), 0);
   const grandTotal = subtotal + totalGst;
@@ -146,35 +153,43 @@ export const QuotationPreview = ({
       style={{ fontFamily: "Arial, Helvetica, sans-serif", borderTop: "4px solid #2563eb" }}
     >
       {/* ── LETTERHEAD ─────────────────────────────────────────── */}
-      <header className="border-b border-slate-200 px-8 py-6">
-        <div className="flex items-center justify-between gap-6">
+      <header className="border-b border-slate-200 px-8 py-5">
+        <div className="grid grid-cols-2 items-start gap-4">
           {/* Left: logo + company info */}
-          <div className="flex items-center gap-5">
-            <div className="flex h-16 w-32 shrink-0 items-center justify-center overflow-hidden">
+          <div className="flex items-center gap-4">
+            <div className="flex h-16 w-20 shrink-0 items-center justify-center overflow-hidden">
               {companyLogoUrl ? (
                 <img src={companyLogoUrl} alt="logo" className="h-full w-full object-contain" />
               ) : (
                 <span className="text-2xl font-bold text-primary">L</span>
               )}
             </div>
-            <div className="border-l border-slate-200 pl-5">
-              <h1 className="text-xl font-bold tracking-wide text-slate-900">{companyName || "—"}</h1>
-              <p className="mt-0.5 text-xs leading-5 text-slate-500">{companyAddress || "—"}</p>
-              <p className="mt-0.5 text-xs text-slate-500">
+            <div className="border-l border-slate-200 pl-4">
+              <h1 className="text-base font-bold leading-snug tracking-wide text-slate-900 whitespace-nowrap">
+                {companyName || "—"}
+              </h1>
+              <p className="mt-0.5 text-[11px] leading-[1.5] text-slate-500">{companyAddress || "—"}</p>
+              <p className="mt-0.5 text-[11px] text-slate-500">
                 <span className="font-semibold text-slate-600">GSTIN:</span> {companyGst || "N/A"}
               </p>
-              <p className="text-xs text-slate-500">
+              <p className="text-[11px] text-slate-500">
                 <span className="font-semibold text-slate-600">Ph:</span> {companyPhone || "—"}
-                {companyEmail && <> &nbsp;|&nbsp; <span className="font-semibold text-slate-600">Email:</span> {companyEmail}</>}
+                {companyEmail && (
+                  <> &nbsp;|&nbsp; <span className="font-semibold text-slate-600">Email:</span> {companyEmail}</>
+                )}
               </p>
             </div>
           </div>
 
-          {/* Right: QUOTATION label + reference */}
-          <div className="shrink-0 text-right">
-            <p className="text-3xl font-extrabold tracking-[0.18em] text-primary">QUOTATION</p>
-            <div className="mt-2 space-y-0.5 text-xs text-slate-500">
-              <p><span className="font-semibold text-slate-600">Quotation No.:</span> {quotationNo || "—"}</p>
+          {/* Right: document title + reference */}
+          <div className="flex flex-col items-end text-right">
+            {isProforma ? (
+              <p className="text-[18px] font-extrabold tracking-[0.12em] text-primary whitespace-nowrap">PROFORMA INVOICE</p>
+            ) : (
+              <p className="text-[28px] font-extrabold tracking-[0.16em] text-primary">QUOTATION</p>
+            )}
+            <div className="mt-2 space-y-0.5 text-[11px] text-slate-500">
+              <p><span className="font-semibold text-slate-600">{docNoLabel}:</span> {quotationNo || "—"}</p>
               <p><span className="font-semibold text-slate-600">Date:</span> {quotationDate || "—"}</p>
               {validity && <p><span className="font-semibold text-slate-600">Valid Until:</span> {validity}</p>}
             </div>
@@ -338,7 +353,7 @@ export const QuotationPreview = ({
 
       {/* ── FOOTER ─────────────────────────────────────────────── */}
       <footer className="flex items-center justify-between px-8 py-3 text-[10px] text-slate-400">
-        <span>This is a computer-generated quotation. No physical signature required.</span>
+        <span>This is a computer-generated {isProforma ? "proforma invoice" : "quotation"}. No physical signature required.</span>
         <span>Page 1 of 1</span>
       </footer>
     </article>
