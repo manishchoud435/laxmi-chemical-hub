@@ -12,7 +12,17 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/components/ui/sonner";
 import { BuyerAutocomplete } from "@/components/quotation/BuyerAutocomplete";
-import { QuotationPreview, type QuotationProductItem, type DocType } from "@/components/quotation/QuotationPreview";
+import {
+  QuotationPreview,
+  type QuotationProductItem,
+  type DocType,
+  PAYMENT_TERMS_OPTIONS,
+  DELIVERY_TERMS_OPTIONS,
+  VALIDITY_OPTIONS,
+  AUTHORIZED_SIGNATORY_DEFAULT,
+  QUOTATION_PLACEHOLDER,
+  PROFORMA_PLACEHOLDER,
+} from "@/components/quotation/QuotationPreview";
 
 const quotationSchema = z.object({
   quotationNo:      z.string().optional(),
@@ -61,6 +71,15 @@ const getTodayDate = (): string => {
   return `${today.getFullYear()}-${pad(today.getMonth() + 1)}-${pad(today.getDate())}`;
 };
 
+// Generate a document number using the same prefix as the placeholders
+const generateDocNumber = (isProforma: boolean) => {
+  const src = isProforma ? PROFORMA_PLACEHOLDER : QUOTATION_PLACEHOLDER;
+  const idx = src.lastIndexOf("/") + 1;
+  const prefix = src.slice(0, idx);
+  const suffix = String(Math.floor(Math.random() * 999) + 1).padStart(3, "0");
+  return `${prefix}${suffix}`;
+};
+
 const defaultValues: QuotationFormValues = {
   quotationNo:     "",
   quotationDate:   getTodayDate(),
@@ -74,14 +93,14 @@ const defaultValues: QuotationFormValues = {
   city:            "",
   state:           "",
   pincode:         "",
-  paymentTerms:    "",
-  deliveryTerms:   "",
+  paymentTerms:    PAYMENT_TERMS_OPTIONS[0],
+  deliveryTerms:   DELIVERY_TERMS_OPTIONS[0],
   leadTime:        "",
   insurance:       "",
-  validity:        "",
+  validity:        VALIDITY_OPTIONS[0],
   remarks:         "",
   sealName:        "",
-  signBy:          "",
+  signBy:          AUTHORIZED_SIGNATORY_DEFAULT,
   products: [
     { productName: "", quantity: 0, unit: "Kgs", rate: 0, gst: 0, hsn: "", packing: "" },
   ],
@@ -136,7 +155,11 @@ export default function Quotation() {
       document.documentElement.classList.toggle("dark", savedTheme === "dark");
     }
     const savedValue = window.localStorage.getItem(STORAGE_KEY);
-    if (!savedValue) return;
+    if (!savedValue) {
+      // no saved draft — generate a doc number if empty
+      if (!getValues().quotationNo) setValue("quotationNo", generateDocNumber(docType === "proforma"));
+      return;
+    }
     try {
       const payload = JSON.parse(savedValue) as { values: QuotationFormValues; theme?: "light" | "dark" };
       if (payload?.values) reset(payload.values);
@@ -144,6 +167,10 @@ export default function Quotation() {
         setTheme(payload.theme);
         document.documentElement.classList.toggle("dark", payload.theme === "dark");
       }
+      // enforce authorized signatory to the exact default
+      setValue("signBy", AUTHORIZED_SIGNATORY_DEFAULT);
+      // if quotation no is empty after loading, generate one matching the selected doc type
+      if (!getValues().quotationNo) setValue("quotationNo", generateDocNumber(docType === "proforma"));
     } catch {
       window.localStorage.removeItem(STORAGE_KEY);
     }
@@ -216,6 +243,10 @@ export default function Quotation() {
         setTheme(payload.theme);
         document.documentElement.classList.toggle("dark", payload.theme === "dark");
       }
+      // always set authorized signatory to the required default
+      setValue("signBy", AUTHORIZED_SIGNATORY_DEFAULT);
+      // ensure doc number exists; if not, generate matching the current docType
+      if (!getValues().quotationNo) setValue("quotationNo", generateDocNumber(docType === "proforma"));
       toast.success("Quotation draft loaded.");
     } catch {
       toast.error("Unable to load saved draft.");
@@ -225,6 +256,10 @@ export default function Quotation() {
   const clearDraft = () => {
     window.localStorage.removeItem(STORAGE_KEY);
     reset(defaultValues);
+    // ensure signatory remains the enforced default
+    setValue("signBy", AUTHORIZED_SIGNATORY_DEFAULT);
+    // generate a fresh doc number for the current doc type
+    setValue("quotationNo", generateDocNumber(docType === "proforma"));
     setDraftStatus("Draft cleared.");
     toast.success("Draft cleared and reset to defaults.");
   };
@@ -327,7 +362,10 @@ export default function Quotation() {
               <div className="mt-4 flex gap-3">
                 <button
                   type="button"
-                  onClick={() => setDocType("quotation")}
+                  onClick={() => {
+                    setDocType("quotation");
+                    if (!getValues().quotationNo) setValue("quotationNo", generateDocNumber(false));
+                  }}
                   className={`rounded-xl border px-5 py-2.5 text-sm font-semibold transition-colors ${
                     docType === "quotation"
                       ? "border-primary bg-primary text-white"
@@ -338,7 +376,10 @@ export default function Quotation() {
                 </button>
                 <button
                   type="button"
-                  onClick={() => setDocType("proforma")}
+                  onClick={() => {
+                    setDocType("proforma");
+                    if (!getValues().quotationNo) setValue("quotationNo", generateDocNumber(true));
+                  }}
                   className={`rounded-xl border px-5 py-2.5 text-sm font-semibold transition-colors ${
                     docType === "proforma"
                       ? "border-primary bg-primary text-white"
@@ -362,7 +403,7 @@ export default function Quotation() {
                   </label>
                   <Input
                     {...register("quotationNo")}
-                    placeholder={docType === "proforma" ? "e.g. LXM/PI/2025-26/001" : "e.g. LXM/2025-26/001"}
+                    placeholder={docType === "proforma" ? PROFORMA_PLACEHOLDER : QUOTATION_PLACEHOLDER}
                   />
                   {errors.quotationNo && <p className="text-xs text-destructive">{errors.quotationNo.message}</p>}
                 </div>
@@ -477,11 +518,25 @@ export default function Quotation() {
                 <div className="grid gap-3 sm:grid-cols-2">
                   <div className="grid gap-2">
                     <label className="text-sm font-medium text-slate-700 dark:text-slate-200">Payment Terms</label>
-                    <Textarea {...register("paymentTerms")} placeholder="e.g. 30 days from invoice date" />
+                    <select
+                      {...register("paymentTerms")}
+                      className="rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/30 dark:bg-slate-800 dark:text-slate-100"
+                    >
+                      {PAYMENT_TERMS_OPTIONS.map((opt) => (
+                        <option key={opt} value={opt}>{opt}</option>
+                      ))}
+                    </select>
                   </div>
                   <div className="grid gap-2">
                     <label className="text-sm font-medium text-slate-700 dark:text-slate-200">Delivery Terms</label>
-                    <Textarea {...register("deliveryTerms")} placeholder="e.g. Ex-works, freight to be borne by buyer" />
+                    <select
+                      {...register("deliveryTerms")}
+                      className="rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/30 dark:bg-slate-800 dark:text-slate-100"
+                    >
+                      {DELIVERY_TERMS_OPTIONS.map((opt) => (
+                        <option key={opt} value={opt}>{opt}</option>
+                      ))}
+                    </select>
                   </div>
                 </div>
                 <div className="grid gap-3 sm:grid-cols-2">
@@ -497,7 +552,14 @@ export default function Quotation() {
                 <div className="grid gap-3 sm:grid-cols-2">
                   <div className="grid gap-2">
                     <label className="text-sm font-medium text-slate-700 dark:text-slate-200">Validity</label>
-                    <Input {...register("validity")} placeholder="e.g. 30 days from quotation date" />
+                    <select
+                      {...register("validity")}
+                      className="rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/30 dark:bg-slate-800 dark:text-slate-100"
+                    >
+                      {VALIDITY_OPTIONS.map((opt) => (
+                        <option key={opt} value={opt}>{opt}</option>
+                      ))}
+                    </select>
                   </div>
                   <div className="grid gap-2">
                     <label className="text-sm font-medium text-slate-700 dark:text-slate-200">Remarks</label>
@@ -511,7 +573,11 @@ export default function Quotation() {
                   </div>
                   <div className="grid gap-2">
                     <label className="text-sm font-medium text-slate-700 dark:text-slate-200">Authorized Signatory</label>
-                    <Input {...register("signBy")} placeholder="Full name of signatory" />
+                    <Input
+                      {...register("signBy")}
+                      defaultValue={AUTHORIZED_SIGNATORY_DEFAULT}
+                      readOnly
+                    />
                   </div>
                 </div>
               </div>

@@ -48,6 +48,32 @@ export interface QuotationPreviewProps {
   bankBranch?: string;
 }
 
+// ── Dropdown option constants (exported for use elsewhere) ─────
+export const PAYMENT_TERMS_OPTIONS = [
+  "Advance payment",
+  "15 Days from invoice date",
+  "30 Days from invoice date",
+  "45 Days from invoice date",
+  "60 Days from invoice date",
+  "Deliver against payment",
+  "Deliver against advance payment",
+];
+
+export const DELIVERY_TERMS_OPTIONS = [
+  "Deliver within 1 day",
+  "Deliver within 2 days",
+  "Deliver within 3 days",
+  "Deliver within 4 days",
+  "Deliver within 5 days",
+];
+
+export const VALIDITY_OPTIONS = ["2 Days", "0 Days", "1 Day", "3 Days", "4 Days", "5 Days", "6 Days"];
+
+export const AUTHORIZED_SIGNATORY_DEFAULT = "Omaram";
+
+export const QUOTATION_PLACEHOLDER = "LXM/2026-27/123";
+export const PROFORMA_PLACEHOLDER = "LXM/PI/2026-27/123";
+
 // ── Amount in words (Indian numbering) ──────────────────────────
 const _ones = ["", "One", "Two", "Three", "Four", "Five", "Six", "Seven",
   "Eight", "Nine", "Ten", "Eleven", "Twelve", "Thirteen", "Fourteen",
@@ -143,6 +169,13 @@ export const QuotationPreview = ({
   const isProforma = docType === "proforma";
   const docNoLabel = isProforma ? "Proforma Invoice No." : "Quotation No.";
 
+  // Use provided values or fall back to the exact default strings exported above
+  const displayQuotationNo = quotationNo || (isProforma ? PROFORMA_PLACEHOLDER : QUOTATION_PLACEHOLDER);
+  const paymentTermsValue = paymentTerms ?? PAYMENT_TERMS_OPTIONS[0];
+  const deliveryTermsValue = deliveryTerms ?? DELIVERY_TERMS_OPTIONS[0];
+  const validityValue = validity ?? VALIDITY_OPTIONS[0];
+  const signByValue = signBy ?? AUTHORIZED_SIGNATORY_DEFAULT;
+
   const subtotal   = products.reduce((s, i) => s + Number(i.quantity || 0) * Number(i.rate || 0), 0);
   const totalGst   = products.reduce((s, i) => s + Number(i.quantity || 0) * Number(i.rate || 0) * (Number(i.gst || 0) / 100), 0);
   const grandTotal = subtotal + totalGst;
@@ -189,9 +222,9 @@ export const QuotationPreview = ({
               <p className="text-[28px] font-extrabold tracking-[0.16em] text-primary">QUOTATION</p>
             )}
             <div className="mt-2 space-y-0.5 text-[11px] text-slate-500">
-              <p><span className="font-semibold text-slate-600">{docNoLabel}:</span> {quotationNo || "—"}</p>
+              <p><span className="font-semibold text-slate-600">{docNoLabel}:</span> {displayQuotationNo}</p>
               <p><span className="font-semibold text-slate-600">Date:</span> {quotationDate || "—"}</p>
-              {validity && <p><span className="font-semibold text-slate-600">Valid Until:</span> {validity}</p>}
+              <p><span className="font-semibold text-slate-600">Valid Until:</span> {validityValue}</p>
             </div>
           </div>
         </div>
@@ -332,8 +365,8 @@ export const QuotationPreview = ({
         <div className="border-r border-slate-200 px-8 py-6">
           <p className="mb-3 text-[9px] font-bold uppercase tracking-[0.25em] text-slate-400">Terms &amp; Conditions</p>
           <div className="space-y-1.5 text-sm text-slate-600">
-            {paymentTerms  && <p><span className="font-semibold text-slate-700">Payment Terms: </span>{paymentTerms}</p>}
-            {deliveryTerms && <p><span className="font-semibold text-slate-700">Delivery Terms: </span>{deliveryTerms}</p>}
+            {paymentTermsValue  && <p><span className="font-semibold text-slate-700">Payment Terms: </span>{paymentTermsValue}</p>}
+            {deliveryTermsValue && <p><span className="font-semibold text-slate-700">Delivery Terms: </span>{deliveryTermsValue}</p>}
             {leadTime      && <p><span className="font-semibold text-slate-700">Lead Time: </span>{leadTime}</p>}
             {insurance     && <p><span className="font-semibold text-slate-700">Insurance: </span>{insurance}</p>}
             {remarks       && <p><span className="font-semibold text-slate-700">Remarks: </span>{remarks}</p>}
@@ -345,7 +378,7 @@ export const QuotationPreview = ({
         <div className="flex flex-col items-center px-8 py-6 text-center">
           <p className="mb-3 text-[9px] font-bold uppercase tracking-[0.25em] text-slate-400">For {sealName || companyName}</p>
           <div className="mt-auto w-full border-t border-slate-300 pt-3">
-            <p className="text-sm font-semibold text-slate-900">{signBy || "Authorized Signatory"}</p>
+            <p className="text-sm font-semibold text-slate-900">{signByValue}</p>
             <p className="text-xs text-slate-400">Authorized Signatory</p>
           </div>
         </div>
