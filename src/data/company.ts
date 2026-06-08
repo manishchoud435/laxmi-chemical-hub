@@ -1,10 +1,10 @@
 export const COMPANY = {
-  name: "Laxmi Chemicals",
+  name: "LAXMI CHEMICALS",
   address: "#B-4, Hebbal Industrial Area, Mysore - 570016",
   gst: "29AALPO0868M1ZX",
-  phone: "+91 9886174335",
+  phone: "+91-9886174335",
   email: "laxmichem7@gmail.com",
-  sealName: "Laxmi Chemicals",
+  sealName: "LAXMI CHEMICALS",
   signBy: "Authorized Signatory",
   bank: {
     name:        "Canara Bank",
