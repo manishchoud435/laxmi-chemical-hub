@@ -187,9 +187,9 @@ export const QuotationPreview = ({
     >
       {/* ── LETTERHEAD ─────────────────────────────────────────── */}
       <header className="border-b border-slate-200 px-8 py-5">
-        <div className="grid grid-cols-2 items-start gap-4">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:items-start">
           {/* Left: logo + company info */}
-          <div className="flex items-center gap-4">
+          <div className="flex items-start gap-4">
             <div className="flex h-16 w-20 shrink-0 items-center justify-center overflow-hidden">
               {companyLogoUrl ? (
                 <img src={companyLogoUrl} alt="logo" className="h-full w-full object-contain" />
@@ -215,7 +215,7 @@ export const QuotationPreview = ({
           </div>
 
           {/* Right: document title + reference */}
-          <div className="flex flex-col items-end text-right">
+          <div className="flex flex-col items-start text-left md:items-end md:text-right">
             {isProforma ? (
               <p className="text-[18px] font-extrabold tracking-[0.12em] text-primary whitespace-nowrap">PROFORMA INVOICE</p>
             ) : (
@@ -231,8 +231,8 @@ export const QuotationPreview = ({
       </header>
 
       {/* ── BILL TO / SHIP TO ──────────────────────────────────── */}
-      <div className="grid grid-cols-2 border-b border-slate-200 bg-slate-50">
-        <div className="border-r border-slate-200 px-8 py-5">
+      <div className="grid grid-cols-1 gap-4 border-b border-slate-200 bg-slate-50 md:grid-cols-2">
+        <div className="rounded-[20px] border border-slate-200 bg-white/0 px-8 py-5 md:border-r md:border-slate-200 md:rounded-none">
           <p className="mb-2 text-[9px] font-bold uppercase tracking-[0.25em] text-slate-400">Bill To</p>
           <p className="text-sm font-bold text-slate-900">{buyerName || "—"}</p>
           <div className="mt-1 space-y-0.5">
@@ -361,8 +361,8 @@ export const QuotationPreview = ({
       )}
 
       {/* ── TERMS & SIGNATURE ──────────────────────────────────── */}
-      <div className="grid grid-cols-[1.35fr_0.65fr] border-b border-slate-200">
-        <div className="border-r border-slate-200 px-8 py-6">
+      <div className="grid grid-cols-1 gap-6 border-b border-slate-200 md:grid-cols-[1.35fr_0.65fr]">
+        <div className="rounded-[20px] border border-slate-200 bg-white/0 px-8 py-6 md:border-r md:border-slate-200 md:rounded-none">
           <p className="mb-3 text-[9px] font-bold uppercase tracking-[0.25em] text-slate-400">Terms &amp; Conditions</p>
           <div className="space-y-1.5 text-sm text-slate-600">
             {paymentTermsValue  && <p><span className="font-semibold text-slate-700">Payment Terms: </span>{paymentTermsValue}</p>}
@@ -375,7 +375,7 @@ export const QuotationPreview = ({
             )}
           </div>
         </div>
-        <div className="flex flex-col items-center px-8 py-6 text-center">
+        <div className="flex flex-col items-center rounded-[20px] border border-slate-200 bg-white/0 px-8 py-6 text-center md:border-none md:rounded-none">
           <p className="mb-3 text-[9px] font-bold uppercase tracking-[0.25em] text-slate-400">For {sealName || companyName}</p>
           <div className="mt-auto w-full border-t border-slate-300 pt-3">
             <p className="text-sm font-semibold text-slate-900">{signByValue}</p>
@@ -385,7 +385,7 @@ export const QuotationPreview = ({
       </div>
 
       {/* ── FOOTER ─────────────────────────────────────────────── */}
-      <footer className="flex items-center justify-between px-8 py-3 text-[10px] text-slate-400">
+      <footer className="flex flex-col gap-2 px-8 py-3 text-[10px] text-slate-400 sm:flex-row sm:items-center sm:justify-between">
         <span>This is a computer-generated {isProforma ? "proforma invoice" : "quotation"}. No physical signature required.</span>
         <span>Page 1 of 1</span>
       </footer>

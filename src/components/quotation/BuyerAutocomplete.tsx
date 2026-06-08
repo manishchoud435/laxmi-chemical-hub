@@ -62,10 +62,10 @@ export function BuyerAutocomplete({ register, setValue, watch, errors }: BuyerAu
   };
 
   return (
-    <div className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-[var(--shadow-card)] dark:border-slate-800 dark:bg-slate-900">
-      <div className="mb-4 flex flex-col gap-2">
-        <p className="text-sm uppercase tracking-[0.3em] text-slate-500 dark:text-slate-400">Buyer Information</p>
-        <h2 className="text-2xl font-semibold text-slate-900 dark:text-slate-100">Select or add a buyer</h2>
+    <div className="rounded-2xl border border-slate-200 bg-white p-4 sm:rounded-[28px] sm:p-6 dark:border-slate-800 dark:bg-slate-900">
+      <div className="mb-4 flex flex-col gap-1.5 sm:gap-2">
+        <p className="text-xs uppercase tracking-[0.2em] text-slate-500 sm:text-sm sm:tracking-[0.3em] dark:text-slate-400">Buyer Information</p>
+        <h2 className="text-xl font-semibold text-slate-900 sm:text-2xl dark:text-slate-100">Select or add a buyer</h2>
         <p className="max-w-2xl text-sm leading-6 text-slate-600 dark:text-slate-400">
           Search buyer master data for fast selection, or enter buyer details manually if the buyer is not listed.
         </p>

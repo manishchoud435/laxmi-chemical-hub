@@ -306,67 +306,67 @@ export default function Quotation() {
   };
 
   return (
-    <main className="min-h-screen bg-[#f4f8ff] px-4 py-24 text-slate-900 dark:bg-slate-950 dark:text-slate-100">
-      <div className="mx-auto w-full max-w-7xl space-y-8">
+    <main className="min-h-screen bg-[#f4f8ff] px-3 py-14 text-slate-900 sm:px-4 sm:py-24 dark:bg-slate-950 dark:text-slate-100">
+      <div className="mx-auto w-full max-w-7xl space-y-6 sm:space-y-8">
 
         {/* ── Page header / actions ── */}
-        <section className="rounded-[32px] border border-slate-200 bg-white/90 p-8 shadow-[var(--shadow-card)] backdrop-blur-xl dark:border-slate-800 dark:bg-slate-900/90">
-          <div className="flex flex-col gap-6 xl:flex-row xl:items-center xl:justify-between">
+        <section className="rounded-[24px] border border-slate-200 bg-white/90 p-4 shadow-[var(--shadow-card)] backdrop-blur-xl sm:rounded-[32px] sm:p-8 dark:border-slate-800 dark:bg-slate-900/90">
+          <div className="flex flex-col gap-4 sm:gap-6 xl:flex-row xl:items-center xl:justify-between">
             <div className="space-y-2">
-              <span className="inline-flex rounded-full bg-primary/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-primary">
+              <span className="inline-flex rounded-full bg-primary/10 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-primary sm:px-4 sm:py-2 sm:tracking-[0.3em]">
                 Corporate Quotation Builder
               </span>
-              <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">Product Quotation</h1>
+              <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl lg:text-4xl">Product Quotation</h1>
               <p className="max-w-2xl text-sm leading-6 text-slate-600 dark:text-slate-300">
                 Fill in buyer details and line items — company info is pre-loaded automatically.
               </p>
             </div>
-            <div className="flex flex-wrap items-center gap-3">
-              <Button variant="outline" size="sm" onClick={toggleTheme}>
-                {theme === "dark" ? "Switch to Light" : "Switch to Dark"}
+            <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+              <Button variant="outline" size="sm" onClick={toggleTheme} className="text-xs sm:text-sm">
+                {theme === "dark" ? "Light Mode" : "Dark Mode"}
               </Button>
-              <Button variant="secondary" size="sm" onClick={saveDraft}>Save Draft</Button>
-              <Button variant="outline"   size="sm" onClick={loadDraft}>Load Draft</Button>
-              <Button variant="ghost"     size="sm" onClick={clearDraft}>Reset</Button>
+              <Button variant="secondary" size="sm" onClick={saveDraft} className="text-xs sm:text-sm">Save Draft</Button>
+              <Button variant="outline"   size="sm" onClick={loadDraft} className="text-xs sm:text-sm">Load Draft</Button>
+              <Button variant="ghost"     size="sm" onClick={clearDraft} className="text-xs sm:text-sm">Reset</Button>
             </div>
           </div>
-          <p className="mt-4 text-sm text-slate-500">
+          <p className="mt-3 text-xs text-slate-500 sm:mt-4 sm:text-sm">
             Draft status: <span className="font-medium text-slate-700 dark:text-slate-200">{draftStatus || "Unsaved changes"}</span>
           </p>
         </section>
 
-        <div className="grid gap-8 xl:grid-cols-[1.05fr_0.95fr]">
-          <div className="space-y-8">
+        <div className="grid gap-6 sm:gap-8 xl:grid-cols-[1.05fr_0.95fr]">
+          <div className="space-y-6 sm:space-y-8">
 
             {/* ── Company Info (read-only) ── */}
-            <section className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-[var(--shadow-card)] dark:border-slate-800 dark:bg-slate-900">
-              <p className="text-sm uppercase tracking-[0.3em] text-slate-500 dark:text-slate-400">Company Details</p>
-              <h2 className="mt-2 text-2xl font-semibold">Your Company</h2>
-              <div className="mt-5 flex items-start gap-5 rounded-2xl border border-slate-100 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-950">
+            <section className="rounded-[24px] border border-slate-200 bg-white p-4 shadow-[var(--shadow-card)] sm:rounded-[28px] sm:p-6 dark:border-slate-800 dark:bg-slate-900">
+              <p className="text-xs uppercase tracking-[0.2em] text-slate-500 sm:text-sm sm:tracking-[0.3em] dark:text-slate-400">Company Details</p>
+              <h2 className="mt-2 text-xl font-semibold sm:text-2xl">Your Company</h2>
+              <div className="mt-4 flex flex-wrap items-start gap-4 rounded-2xl border border-slate-100 bg-slate-50 p-4 sm:gap-5 dark:border-slate-800 dark:bg-slate-950">
                 <div className="flex h-14 w-18 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-white ring-1 ring-slate-200 dark:bg-slate-800">
                   <img src={logo} alt="Laxmi Chemicals" className="h-14 w-20 object-contain" />
                 </div>
-                <div className="text-sm text-slate-700 dark:text-slate-300 space-y-0.5">
+                <div className="min-w-0 flex-1 text-sm text-slate-700 dark:text-slate-300 space-y-0.5">
                   <p className="text-base font-semibold text-slate-900 dark:text-slate-100">{COMPANY.name}</p>
-                  <p>{COMPANY.address}</p>
+                  <p className="break-words">{COMPANY.address}</p>
                   <p><span className="font-medium">GSTIN:</span> {COMPANY.gst}</p>
-                  <p><span className="font-medium">Ph:</span> {COMPANY.phone} &nbsp;|&nbsp; <span className="font-medium">Email:</span> {COMPANY.email}</p>
+                  <p className="break-all"><span className="font-medium">Ph:</span> {COMPANY.phone} &nbsp;|&nbsp; <span className="font-medium">Email:</span> {COMPANY.email}</p>
                 </div>
               </div>
             </section>
 
             {/* ── Quotation Reference + Buyer Info ── */}
-            <section className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-[var(--shadow-card)] dark:border-slate-800 dark:bg-slate-900">
-              <p className="text-sm uppercase tracking-[0.3em] text-slate-500 dark:text-slate-400">Document Type</p>
-              <h2 className="mt-2 text-2xl font-semibold">Select Document</h2>
-              <div className="mt-4 flex gap-3">
+            <section className="rounded-[24px] border border-slate-200 bg-white p-4 shadow-[var(--shadow-card)] sm:rounded-[28px] sm:p-6 dark:border-slate-800 dark:bg-slate-900">
+              <p className="text-xs uppercase tracking-[0.2em] text-slate-500 sm:text-sm sm:tracking-[0.3em] dark:text-slate-400">Document Type</p>
+              <h2 className="mt-2 text-xl font-semibold sm:text-2xl">Select Document</h2>
+              <div className="mt-4 flex flex-wrap gap-2 sm:gap-3">
                 <button
                   type="button"
                   onClick={() => {
                     setDocType("quotation");
                     if (!getValues().quotationNo) setValue("quotationNo", generateDocNumber(false));
                   }}
-                  className={`rounded-xl border px-5 py-2.5 text-sm font-semibold transition-colors ${
+                  className={`rounded-xl border px-4 py-2 text-sm font-semibold transition-colors sm:px-5 sm:py-2.5 ${
                     docType === "quotation"
                       ? "border-primary bg-primary text-white"
                       : "border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300"
@@ -380,7 +380,7 @@ export default function Quotation() {
                     setDocType("proforma");
                     if (!getValues().quotationNo) setValue("quotationNo", generateDocNumber(true));
                   }}
-                  className={`rounded-xl border px-5 py-2.5 text-sm font-semibold transition-colors ${
+                  className={`rounded-xl border px-4 py-2 text-sm font-semibold transition-colors sm:px-5 sm:py-2.5 ${
                     docType === "proforma"
                       ? "border-primary bg-primary text-white"
                       : "border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300"
@@ -390,13 +390,13 @@ export default function Quotation() {
                 </button>
               </div>
 
-              <p className="mt-8 text-sm uppercase tracking-[0.3em] text-slate-500 dark:text-slate-400">
+              <p className="mt-6 text-xs uppercase tracking-[0.2em] text-slate-500 sm:mt-8 sm:text-sm sm:tracking-[0.3em] dark:text-slate-400">
                 {docType === "proforma" ? "Proforma Invoice Reference" : "Quotation Reference"}
               </p>
-              <h2 className="mt-2 text-2xl font-semibold">
+              <h2 className="mt-2 text-xl font-semibold sm:text-2xl">
                 {docType === "proforma" ? "Proforma Invoice Details" : "Quotation Details"}
               </h2>
-              <div className="mt-6 grid gap-4 sm:grid-cols-2">
+              <div className="mt-5 grid gap-4 sm:grid-cols-2">
                 <div className="grid gap-2">
                   <label className="text-sm font-medium text-slate-700 dark:text-slate-200">
                     {docType === "proforma" ? "Proforma Invoice No." : "Quotation No."}
@@ -420,30 +420,31 @@ export default function Quotation() {
             </section>
 
             {/* ── Line Items ── */}
-            <section className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-[var(--shadow-card)] dark:border-slate-800 dark:bg-slate-900">
-              <div className="flex items-center justify-between">
+            <section className="rounded-[24px] border border-slate-200 bg-white p-4 shadow-[var(--shadow-card)] sm:rounded-[28px] sm:p-6 dark:border-slate-800 dark:bg-slate-900">
+              <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
-                  <p className="text-sm uppercase tracking-[0.3em] text-slate-500 dark:text-slate-400">Product Quotation</p>
-                  <h2 className="mt-2 text-2xl font-semibold">Line Items</h2>
+                  <p className="text-xs uppercase tracking-[0.2em] text-slate-500 sm:text-sm sm:tracking-[0.3em] dark:text-slate-400">Product Quotation</p>
+                  <h2 className="mt-1 text-xl font-semibold sm:mt-2 sm:text-2xl">Line Items</h2>
                 </div>
                 <Button
                   type="button"
                   variant="secondary"
                   size="sm"
                   onClick={() => append({ productName: "", quantity: 0, unit: "Kgs", rate: 0, gst: 0, hsn: "", packing: "" })}
+                  className="shrink-0 text-xs sm:text-sm"
                 >
-                  Add Product
+                  + Add Product
                 </Button>
               </div>
 
-              <div className="mt-6 divide-y divide-slate-200 overflow-hidden rounded-3xl border border-slate-200 dark:divide-slate-800 dark:border-slate-800">
+              <div className="mt-5 divide-y divide-slate-200 overflow-hidden rounded-2xl border border-slate-200 sm:mt-6 sm:rounded-3xl dark:divide-slate-800 dark:border-slate-800">
                 {fields.map((field, index) => (
-                  <div key={field.id} className="bg-white px-5 py-5 dark:bg-slate-950">
-                    <div className="mb-4 flex items-center gap-3">
-                      <span className="min-w-[24px] text-xs font-semibold text-slate-400">#{index + 1}</span>
+                  <div key={field.id} className="bg-white px-3 py-4 sm:px-5 sm:py-5 dark:bg-slate-950">
+                    <div className="mb-3 flex items-center gap-2 sm:mb-4 sm:gap-3">
+                      <span className="shrink-0 text-xs font-semibold text-slate-400">#{index + 1}</span>
                       <select
                         {...register(`products.${index}.productName` as const, { required: true })}
-                        className="flex-1 rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/30 dark:bg-slate-800 dark:text-slate-100"
+                        className="min-w-0 flex-1 rounded-md border border-input bg-background px-2 py-2 text-xs shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/30 sm:px-3 sm:text-sm dark:bg-slate-800 dark:text-slate-100"
                       >
                         <option value="">Select product…</option>
                         {productCategories.map((cat) => (
@@ -464,56 +465,56 @@ export default function Quotation() {
                         &times;
                       </Button>
                     </div>
-                    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-6">
-                      <div className="grid gap-1">
+                    <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-3 xl:grid-cols-6">
+                      <div className="grid min-w-0 gap-1">
                         <label className="text-xs font-medium text-slate-500 dark:text-slate-400">Qty</label>
-                        <Input {...register(`products.${index}.quantity` as const, { valueAsNumber: true })} type="number" min={0} step={0.01} placeholder="0" />
+                        <Input {...register(`products.${index}.quantity` as const, { valueAsNumber: true })} type="number" min={0} step={0.01} placeholder="0" className="text-xs sm:text-sm" />
                       </div>
-                      <div className="grid gap-1">
+                      <div className="grid min-w-0 gap-1">
                         <label className="text-xs font-medium text-slate-500 dark:text-slate-400">Unit</label>
                         <select
                           {...register(`products.${index}.unit` as const)}
-                          className="rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/30 dark:bg-slate-800 dark:text-slate-100"
+                          className="min-w-0 rounded-md border border-input bg-background px-2 py-2 text-xs shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/30 sm:px-3 sm:text-sm dark:bg-slate-800 dark:text-slate-100"
                         >
                           <option value="Kgs">Kgs</option>
                           <option value="Ltrs">Ltrs</option>
                           <option value="Pcs">Pcs</option>
                         </select>
                       </div>
-                      <div className="grid gap-1">
-                        <label className="text-xs font-medium text-slate-500 dark:text-slate-400">Rate / Unit (₹)</label>
-                        <Input {...register(`products.${index}.rate` as const, { valueAsNumber: true })} type="number" min={0} step={0.01} placeholder="0.00" />
+                      <div className="grid min-w-0 gap-1">
+                        <label className="text-xs font-medium text-slate-500 dark:text-slate-400">Rate/Unit (₹)</label>
+                        <Input {...register(`products.${index}.rate` as const, { valueAsNumber: true })} type="number" min={0} step={0.01} placeholder="0.00" className="text-xs sm:text-sm" />
                       </div>
-                      <div className="grid gap-1">
+                      <div className="grid min-w-0 gap-1">
                         <label className="text-xs font-medium text-slate-500 dark:text-slate-400">GST %</label>
-                        <Input {...register(`products.${index}.gst` as const, { valueAsNumber: true })} type="number" min={0} step={0.1} placeholder="18" />
+                        <Input {...register(`products.${index}.gst` as const, { valueAsNumber: true })} type="number" min={0} step={0.1} placeholder="18" className="text-xs sm:text-sm" />
                       </div>
-                      <div className="grid gap-1">
+                      <div className="grid min-w-0 gap-1">
                         <label className="text-xs font-medium text-slate-500 dark:text-slate-400">HSN / SAC</label>
-                        <Input {...register(`products.${index}.hsn` as const)} placeholder="e.g. 2815" />
+                        <Input {...register(`products.${index}.hsn` as const)} placeholder="2815" className="text-xs sm:text-sm" />
                       </div>
-                      <div className="grid gap-1">
+                      <div className="grid min-w-0 gap-1">
                         <label className="text-xs font-medium text-slate-500 dark:text-slate-400">Packing</label>
-                        <Input {...register(`products.${index}.packing` as const)} placeholder="e.g. 25 Kg bag" />
+                        <Input {...register(`products.${index}.packing` as const)} placeholder="25 Kg bag" className="text-xs sm:text-sm" />
                       </div>
                     </div>
                   </div>
                 ))}
                 {fields.length === 0 && (
-                  <p className="bg-white px-5 py-6 text-center text-sm text-slate-500 dark:bg-slate-950">
-                    No products added yet. Click "Add Product" to start.
+                  <p className="bg-white px-4 py-6 text-center text-sm text-slate-500 dark:bg-slate-950">
+                    No products added yet. Tap "+ Add Product" to start.
                   </p>
                 )}
                 {errors.products?.message && (
-                  <p className="bg-white px-5 py-3 text-sm font-medium text-destructive dark:bg-slate-950">{errors.products.message}</p>
+                  <p className="bg-white px-4 py-3 text-sm font-medium text-destructive dark:bg-slate-950">{errors.products.message}</p>
                 )}
               </div>
             </section>
 
             {/* ── Terms & Conditions ── */}
-            <section className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-[var(--shadow-card)] dark:border-slate-800 dark:bg-slate-900">
-              <p className="text-sm uppercase tracking-[0.3em] text-slate-500 dark:text-slate-400">Terms &amp; Conditions</p>
-              <h2 className="mt-2 text-2xl font-semibold">Quote Terms</h2>
+            <section className="rounded-[24px] border border-slate-200 bg-white p-4 shadow-[var(--shadow-card)] sm:rounded-[28px] sm:p-6 dark:border-slate-800 dark:bg-slate-900">
+              <p className="text-xs uppercase tracking-[0.2em] text-slate-500 sm:text-sm sm:tracking-[0.3em] dark:text-slate-400">Terms &amp; Conditions</p>
+              <h2 className="mt-2 text-xl font-semibold sm:text-2xl">Quote Terms</h2>
               <div className="mt-6 grid gap-4">
                 <div className="grid gap-3 sm:grid-cols-2">
                   <div className="grid gap-2">
@@ -584,9 +585,9 @@ export default function Quotation() {
             </section>
 
             {/* ── Bank Details (read-only) ── */}
-            <section className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-[var(--shadow-card)] dark:border-slate-800 dark:bg-slate-900">
-              <p className="text-sm uppercase tracking-[0.3em] text-slate-500 dark:text-slate-400">Payment Information</p>
-              <h2 className="mt-2 text-2xl font-semibold">Bank Details</h2>
+            <section className="rounded-[24px] border border-slate-200 bg-white p-4 shadow-[var(--shadow-card)] sm:rounded-[28px] sm:p-6 dark:border-slate-800 dark:bg-slate-900">
+              <p className="text-xs uppercase tracking-[0.2em] text-slate-500 sm:text-sm sm:tracking-[0.3em] dark:text-slate-400">Payment Information</p>
+              <h2 className="mt-2 text-xl font-semibold sm:text-2xl">Bank Details</h2>
               <div className="mt-5 rounded-2xl border border-slate-100 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-950">
                 <div className="grid gap-1 text-sm text-slate-700 dark:text-slate-300 sm:grid-cols-2">
                   <p><span className="font-medium text-slate-500">Bank:</span> {COMPANY.bank.name}</p>
@@ -600,41 +601,41 @@ export default function Quotation() {
           </div>
 
           {/* ── Sidebar: summary + export ── */}
-          <aside className="space-y-6">
-            <section className="sticky top-24 rounded-[28px] border border-slate-200 bg-white p-6 shadow-[var(--shadow-card)] dark:border-slate-800 dark:bg-slate-900">
-              <p className="text-sm uppercase tracking-[0.3em] text-slate-500 dark:text-slate-400">
+          <aside className="space-y-5 sm:space-y-6">
+            <section className="xl:sticky xl:top-24 rounded-[24px] border border-slate-200 bg-white p-4 shadow-[var(--shadow-card)] sm:rounded-[28px] sm:p-6 dark:border-slate-800 dark:bg-slate-900">
+              <p className="text-xs uppercase tracking-[0.2em] text-slate-500 sm:text-sm sm:tracking-[0.3em] dark:text-slate-400">
                 {docType === "proforma" ? "Proforma Invoice Summary" : "Quotation Summary"}
               </p>
-              <div className="mt-4 grid gap-4 text-sm text-slate-700 dark:text-slate-300">
-                <div className="flex items-center justify-between rounded-3xl bg-slate-50 p-4 dark:bg-slate-950">
+              <div className="mt-4 grid gap-3 text-sm text-slate-700 sm:gap-4 dark:text-slate-300">
+                <div className="flex items-center justify-between rounded-2xl bg-slate-50 p-3 sm:rounded-3xl sm:p-4 dark:bg-slate-950">
                   <span>Taxable Amount</span>
                   <span className="font-semibold">₹{totals.subtotal.toFixed(2)}</span>
                 </div>
-                <div className="flex items-center justify-between rounded-3xl bg-slate-50 p-4 dark:bg-slate-950">
+                <div className="flex items-center justify-between rounded-2xl bg-slate-50 p-3 sm:rounded-3xl sm:p-4 dark:bg-slate-950">
                   <span>GST Amount</span>
                   <span className="font-semibold">₹{totals.gst.toFixed(2)}</span>
                 </div>
-                <div className="flex items-center justify-between rounded-3xl bg-primary/5 p-4 text-base font-semibold text-slate-900 dark:bg-primary/10 dark:text-slate-100">
+                <div className="flex items-center justify-between rounded-2xl bg-primary/5 p-3 text-base font-semibold text-slate-900 sm:rounded-3xl sm:p-4 dark:bg-primary/10 dark:text-slate-100">
                   <span>Grand Total</span>
                   <span>₹{totals.grandTotal.toFixed(2)}</span>
                 </div>
               </div>
-              <div className="mt-6 flex flex-col gap-3">
-                <Button variant="secondary" onClick={handleDownloadPdf} disabled={downloading}>
+              <div className="mt-5 flex flex-col gap-3 sm:mt-6">
+                <Button variant="secondary" onClick={handleDownloadPdf} disabled={downloading} className="text-xs sm:text-sm">
                   {downloading
                     ? "Generating PDF…"
                     : docType === "proforma"
-                    ? "Download Proforma Invoice PDF"
+                    ? "Download Proforma PDF"
                     : "Download Quotation PDF"}
                 </Button>
-                <Button variant="outline" onClick={() => window.print()}>
+                <Button variant="outline" onClick={() => window.print()} className="text-xs sm:text-sm">
                   Print Friendly View
                 </Button>
               </div>
             </section>
 
-            <section className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-[var(--shadow-card)] dark:border-slate-800 dark:bg-slate-900">
-              <h3 className="text-xl font-semibold">Live Preview</h3>
+            <section className="rounded-[24px] border border-slate-200 bg-white p-4 shadow-[var(--shadow-card)] sm:rounded-[28px] sm:p-6 dark:border-slate-800 dark:bg-slate-900">
+              <h3 className="text-lg font-semibold sm:text-xl">Live Preview</h3>
               <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-400">
                 The preview below updates as you fill the form. PDF export matches this layout exactly.
               </p>
@@ -643,7 +644,7 @@ export default function Quotation() {
         </div>
 
         {/* ── Full-width quotation preview ── */}
-        <section className="rounded-[28px] border border-slate-200 bg-white p-4 shadow-[var(--shadow-card)] dark:border-slate-800 dark:bg-slate-900">
+        <section className="overflow-x-auto rounded-[24px] border border-slate-200 bg-white p-2 shadow-[var(--shadow-card)] sm:rounded-[28px] sm:p-4 dark:border-slate-800 dark:bg-slate-900">
           <div ref={previewRef}>
             <QuotationPreview
               docType={docType}
