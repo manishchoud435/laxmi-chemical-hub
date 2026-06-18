@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import DrumLabel from "./pages/DrumLabel";
 import Quotation from "./pages/Quotation";
+import LetterPad from "./pages/LetterPad";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -20,6 +21,7 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/drum-label" element={<DrumLabel />} />
           <Route path="/quotation" element={<Quotation />} />
+          <Route path="/letter-pad" element={<LetterPad />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

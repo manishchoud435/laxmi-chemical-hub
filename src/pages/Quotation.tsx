@@ -4,6 +4,7 @@ import { useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import html2pdf from "html2pdf.js";
+import { NotepadText } from "lucide-react";
 import logo from "@/assets/laxmi-chemicals-logo.png";
 import { COMPANY } from "@/data/company";
 import { productCategories } from "@/data/products";
@@ -322,6 +323,10 @@ export default function Quotation() {
               </p>
             </div>
             <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+              <Button variant="default" size="sm" onClick={() => navigate("/letter-pad")} className="gap-1.5 text-xs sm:text-sm">
+                <NotepadText className="h-4 w-4" />
+                Letter Pad
+              </Button>
               <Button variant="outline" size="sm" onClick={toggleTheme} className="text-xs sm:text-sm">
                 {theme === "dark" ? "Light Mode" : "Dark Mode"}
               </Button>

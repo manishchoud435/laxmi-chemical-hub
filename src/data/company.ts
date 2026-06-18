@@ -1,5 +1,6 @@
 export const COMPANY = {
   name: "LAXMI CHEMICALS",
+  tagline: "Dealers in Solvents & Other Chemicals",
   address: "#B-4, Hebbal Industrial Area, Mysore - 570016",
   gst: "29AALPO0868M1ZX",
   phone: "+91-9886174335",
