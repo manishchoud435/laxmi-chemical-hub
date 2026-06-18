@@ -1,6 +1,7 @@
 import { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import html2pdf from "html2pdf.js";
+import { jsPDF } from "jspdf";
+import html2canvas from "html2canvas";
 import {
   Document as DocxDocument,
   Packer,
@@ -206,8 +207,9 @@ const buildLetterheadDocx = async (logoDataUrl: string, icons: IconPngs, body: s
         })
       : new TextRun("");
 
+  // left-aligned so the (equal-width) icons form a column and the values line up
   const rightLine = (children: (TextRun | ImageRun)[]) =>
-    new Paragraph({ alignment: AlignmentType.RIGHT, spacing: { after: 20 }, children });
+    new Paragraph({ alignment: AlignmentType.LEFT, spacing: { after: 20 }, children });
 
   // Keep city + pincode together on the address line (matches the preview).
   const addrParts = COMPANY.address.split(",").map((s) => s.trim()).filter(Boolean);
@@ -356,56 +358,193 @@ export default function LetterPad() {
   };
 
   const handleDownloadPdf = async () => {
-    const source = previewRef.current;
-    if (!source) return;
+    const sheet = previewRef.current?.querySelector(".letterhead-preview") as HTMLElement | null;
+    if (!sheet) return;
     setDownloadingPdf(true);
-    // wait for the logo image to finish loading so it renders in the canvas
-    const imgs = Array.from(source.querySelectorAll("img"));
-    await Promise.all(
-      imgs.map((img) =>
-        img.complete
-          ? Promise.resolve()
-          : new Promise<void>((res) => {
-              img.addEventListener("load", () => res(), { once: true });
-              img.addEventListener("error", () => res(), { once: true });
-            })
-      )
-    );
-
-    // Pad the sheet up to a whole number of A4 pages so long content flows onto
-    // additional pages (instead of being clipped) and the footer lands at the
-    // bottom of the last page. One A4 page = ~1123px tall at the sheet's 794px width.
-    const PAGE_PX = 1123;
-    const sheet = source.querySelector(".letterhead-preview") as HTMLElement | null;
-    const pageCount = sheet ? Math.max(1, Math.ceil(sheet.scrollHeight / PAGE_PX)) : 1;
 
     try {
-      await html2pdf()
-        .from(source)
-        .set({
-          margin: 0,
-          filename: `${FILE_BASE}.pdf`,
-          image: { type: "jpeg", quality: 0.98 },
-          html2canvas: {
-            scale: 2,
-            useCORS: true,
-            backgroundColor: "#ffffff",
-            logging: false,
-            onclone: (doc: Document) => {
-              // hide the on-screen "write here" hint in the exported file
-              doc.querySelectorAll(".lh-placeholder").forEach((el) => {
-                (el as HTMLElement).style.display = "none";
-              });
-              // pad the cloned sheet to a whole number of pages
-              const clonedSheet = doc.querySelector(".letterhead-preview") as HTMLElement | null;
-              if (clonedSheet) clonedSheet.style.minHeight = `${pageCount * PAGE_PX}px`;
-            },
-          },
-          jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
-          // @ts-expect-error — pagebreak is supported by html2pdf at runtime
-          pagebreak: { mode: ["avoid-all", "css", "legacy"] },
-        })
-        .save();
+      const PAGE_W = 210;
+      const PAGE_H = 297;
+      const MARGIN = 15;
+      const SCALE = 2;
+      const PX_TO_MM = PAGE_W / sheet.offsetWidth; // sheet is 794px wide -> 210mm
+
+      // address split (city + pincode stay together on the 2nd line)
+      const addrParts = COMPANY.address.split(",").map((s) => s.trim()).filter(Boolean);
+      const addrLine1 = addrParts.length > 1 ? addrParts.slice(0, -1).join(", ") : COMPANY.address;
+      const addrLine2 = addrParts.length > 1 ? addrParts[addrParts.length - 1] : "";
+
+      // assets: logo, faint watermark, and rasterized contact icons
+      let logoImg = "";
+      let logoW = 36;
+      let logoH = 17;
+      let watermarkImg = "";
+      let wmRatio = 0.46;
+      try {
+        const logoDataUrl = await urlToBase64(logo);
+        const { width, height } = await getImageSize(logoDataUrl);
+        const ratio = height / width || 0.46;
+        logoImg = logoDataUrl;
+        logoW = 36;
+        logoH = logoW * ratio;
+        wmRatio = ratio;
+        watermarkImg = await makeFadedPng(logoDataUrl, 0.06);
+      } catch {
+        logoImg = "";
+      }
+      const icons = await extractHeaderIconPngs(sheet);
+
+      const pdf = new jsPDF({ unit: "mm", format: "a4", orientation: "portrait" });
+
+      const HEADER_RULE_Y = 41;
+      const ACCENT: [number, number, number] = [37, 99, 235];
+
+      // ── contact block (icons drawn at exact coordinates next to each value) ──
+      const drawContacts = (topPad: number) => {
+        const iconX = 140;
+        const valX = 145;
+        const iconSize = 3.3;
+        const drawIcon = (img: string, baseY: number) => {
+          if (img) pdf.addImage(img, "PNG", iconX, baseY - 1.1 - iconSize / 2, iconSize, iconSize);
+        };
+        pdf.setFontSize(8.5);
+        let cy = topPad + 2.5;
+
+        pdf.setFont("helvetica", "normal");
+        pdf.setTextColor(100, 116, 139);
+        drawIcon(icons.address, cy);
+        pdf.text(addrLine1, valX, cy);
+        if (addrLine2) pdf.text(addrLine2, valX, cy + 4);
+        cy += addrLine2 ? 9 : 5.5;
+
+        drawIcon(icons.gst, cy);
+        pdf.setFont("helvetica", "bold");
+        pdf.setTextColor(71, 85, 105);
+        pdf.text("GSTIN: ", valX, cy);
+        const gw = pdf.getTextWidth("GSTIN: ");
+        pdf.setFont("helvetica", "normal");
+        pdf.setTextColor(100, 116, 139);
+        pdf.text(COMPANY.gst, valX + gw, cy);
+        cy += 5.5;
+
+        drawIcon(icons.phone, cy);
+        pdf.text(COMPANY.phone, valX, cy);
+        cy += 5.5;
+
+        drawIcon(icons.email, cy);
+        pdf.text(COMPANY.email, valX, cy);
+      };
+
+      // ── full letterhead chrome, drawn natively on every page ──
+      const drawChrome = () => {
+        const topPad = 12;
+        if (watermarkImg) {
+          const wmW = 120;
+          const wmH = wmW * wmRatio;
+          pdf.addImage(watermarkImg, "PNG", (PAGE_W - wmW) / 2, (PAGE_H - wmH) / 2, wmW, wmH);
+        }
+        // logo + company name / tagline / since
+        if (logoImg) pdf.addImage(logoImg, "PNG", MARGIN, topPad, logoW, logoH);
+        const tx = MARGIN + logoW + 5;
+        pdf.setFont("helvetica", "bold");
+        pdf.setFontSize(18);
+        pdf.setTextColor(15, 23, 42);
+        pdf.text(COMPANY.name, tx, topPad + 6.5);
+        pdf.setFontSize(11);
+        pdf.setTextColor(ACCENT[0], ACCENT[1], ACCENT[2]);
+        pdf.text(COMPANY.tagline, tx, topPad + 13);
+        pdf.setFont("helvetica", "normal");
+        pdf.setFontSize(7.5);
+        pdf.setTextColor(148, 163, 184);
+        pdf.text(`SINCE ${SINCE}`, tx, topPad + 18, { charSpace: 0.8 });
+        // contact block
+        drawContacts(topPad);
+        // accent rule under the header
+        pdf.setDrawColor(ACCENT[0], ACCENT[1], ACCENT[2]);
+        pdf.setLineWidth(0.7);
+        pdf.line(MARGIN, HEADER_RULE_Y, PAGE_W - MARGIN, HEADER_RULE_Y);
+        // blue accent bar at the very top
+        pdf.setFillColor(ACCENT[0], ACCENT[1], ACCENT[2]);
+        pdf.rect(0, 0, PAGE_W, 1.6, "F");
+        // footer: divider + centered contact strip
+        const footerLineY = PAGE_H - 16;
+        pdf.setDrawColor(226, 232, 240);
+        pdf.setLineWidth(0.2);
+        pdf.line(MARGIN, footerLineY, PAGE_W - MARGIN, footerLineY);
+        pdf.setFont("helvetica", "normal");
+        pdf.setFontSize(7.5);
+        pdf.setTextColor(148, 163, 184);
+        pdf.text(
+          `${COMPANY.address}   •   Ph: ${COMPANY.phone}   •   ${COMPANY.email}   •   GSTIN: ${COMPANY.gst}`,
+          PAGE_W / 2,
+          footerLineY + 4,
+          { align: "center" }
+        );
+      };
+
+      // body region between header rule and footer
+      const bodyTopMM = HEADER_RULE_Y + 5;
+      const bodyBottomMM = PAGE_H - 22;
+      const availPx = (bodyBottomMM - bodyTopMM) / PX_TO_MM;
+
+      const bodyEl = sheet.querySelector(".lh-body") as HTMLElement | null;
+
+      if (!bodyEl || bodyEl.children.length === 0) {
+        drawChrome(); // empty body -> a single blank letterhead page
+      } else {
+        // capture only the body text as an image (preserves styling / any chars)
+        const bodyCanvas = await html2canvas(bodyEl, {
+          scale: SCALE,
+          backgroundColor: null,
+          useCORS: true,
+          logging: false,
+        });
+        const contentW = bodyEl.offsetWidth * PX_TO_MM;
+        const sideMM = (PAGE_W - contentW) / 2;
+
+        // group whole lines into per-page slices so a line is never cut in half
+        const bodyTopPx = bodyEl.getBoundingClientRect().top;
+        const lines = Array.from(bodyEl.children).map((el) => {
+          const r = el.getBoundingClientRect();
+          return { top: r.top - bodyTopPx, bottom: r.bottom - bodyTopPx };
+        });
+        const slices: { start: number; end: number }[] = [];
+        let start = lines[0].top;
+        let lastEnd = start;
+        for (const ln of lines) {
+          if (ln.bottom - start > availPx && lastEnd > start) {
+            slices.push({ start, end: lastEnd });
+            start = ln.top;
+          }
+          lastEnd = ln.bottom;
+        }
+        slices.push({ start, end: lastEnd });
+
+        slices.forEach((slice, idx) => {
+          if (idx > 0) pdf.addPage();
+          drawChrome();
+          const sliceHpx = Math.max(1, slice.end - slice.start);
+          const sliceCanvas = document.createElement("canvas");
+          sliceCanvas.width = bodyCanvas.width;
+          sliceCanvas.height = Math.round(sliceHpx * SCALE);
+          const ctx = sliceCanvas.getContext("2d");
+          if (!ctx) return;
+          ctx.drawImage(
+            bodyCanvas,
+            0,
+            Math.round(slice.start * SCALE),
+            bodyCanvas.width,
+            sliceCanvas.height,
+            0,
+            0,
+            bodyCanvas.width,
+            sliceCanvas.height
+          );
+          pdf.addImage(sliceCanvas.toDataURL("image/png"), "PNG", sideMM, bodyTopMM, contentW, sliceHpx * PX_TO_MM);
+        });
+      }
+
+      pdf.save(`${FILE_BASE}.pdf`);
     } catch (err) {
       console.error(err);
       toast.error("Failed to generate PDF. Please try again.");
