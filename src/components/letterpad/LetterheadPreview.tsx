@@ -47,7 +47,7 @@ export const LetterheadPreview = ({
     >
       {/* ── BACKGROUND WATERMARK (faint logo) ──────────────────── */}
       {companyLogoUrl && (
-        <div className="pointer-events-none absolute inset-0 z-0 flex items-center justify-center">
+        <div className="lh-watermark pointer-events-none absolute inset-0 z-0 flex items-center justify-center">
           <img
             src={companyLogoUrl}
             alt=""
@@ -83,31 +83,31 @@ export const LetterheadPreview = ({
               )}
             </div>
           </div>
-          <div className="max-w-[280px] space-y-1 text-[11px] leading-[1.7] text-slate-500">
-            <p className="flex items-start justify-end gap-1.5">
-              <MapPin className="mt-[3px] h-3 w-3 shrink-0 text-slate-400" />
-              <span className="text-right">
-                {addrLine1}
-                {addrLine2 && (
-                  <>
-                    <br />
-                    {addrLine2}
-                  </>
-                )}
-              </span>
-            </p>
-            <p className="flex items-center justify-end gap-1.5">
+          <div className="ml-auto grid w-fit grid-cols-[auto_1fr] items-start gap-x-2 gap-y-1.5 text-[11px] leading-4 text-slate-500">
+            <span className="flex h-4 items-center">
+              <MapPin className="h-3 w-3 shrink-0 text-slate-400" />
+            </span>
+            <span>
+              {addrLine1}
+              {addrLine2 && (
+                <>
+                  <br />
+                  {addrLine2}
+                </>
+              )}
+            </span>
+            <span className="flex h-4 items-center">
               <ReceiptText className="h-3 w-3 shrink-0 text-slate-400" />
-              <span><span className="font-semibold text-slate-600">GSTIN:</span> {companyGst}</span>
-            </p>
-            <p className="flex items-center justify-end gap-1.5">
+            </span>
+            <span><span className="font-semibold text-slate-600">GSTIN:</span> {companyGst}</span>
+            <span className="flex h-4 items-center">
               <Phone className="h-3 w-3 shrink-0 text-slate-400" />
-              <span>{companyPhone}</span>
-            </p>
-            <p className="flex items-center justify-end gap-1.5">
+            </span>
+            <span>{companyPhone}</span>
+            <span className="flex h-4 items-center">
               <Mail className="h-3 w-3 shrink-0 text-slate-400" />
-              <span>{companyEmail}</span>
-            </p>
+            </span>
+            <span>{companyEmail}</span>
           </div>
         </div>
         <div className="mt-5 h-[3px] w-full rounded-full" style={{ background: ACCENT }} />
@@ -116,7 +116,7 @@ export const LetterheadPreview = ({
       {/* ── BODY (letter content) ──────────────────────────────── */}
       <div className="flex-1" style={{ padding: "28px 56px" }}>
         {body ? (
-          <div className="text-[13px] leading-[1.9] text-slate-800">
+          <div className="lh-body text-[13px] leading-[1.9] text-slate-800">
             {body.split("\n").map((line, i) => (
               // one element per line so PDF page breaks fall between lines
               <p
