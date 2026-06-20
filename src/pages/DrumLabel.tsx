@@ -2,6 +2,7 @@ import { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import html2pdf from "html2pdf.js";
 import ChemicalLabel from "@/components/ChemicalLabel";
+import ThermalLabel from "@/components/ThermalLabel";
 import { productCategories } from "@/data/products";
 import { getProductSafety } from "@/data/productSafety";
 import "@/components/ChemicalLabel.css";
@@ -49,6 +50,7 @@ const DrumLabel = () => {
   const [step, setStep] = useState<Step>("select-product");
   const [search, setSearch] = useState("");
   const [stickersPerPage, setStickersPerPage] = useState<1 | 2>(1);
+  const [thermalSize, setThermalSize] = useState<null | "3x5" | "4x4" | "4x6">(null);
   const [form, setForm] = useState<LabelFormData>({
     productName: "",
     batchNo: "",
@@ -87,7 +89,41 @@ const DrumLabel = () => {
     setStep("choose-layout");
   };
 
-  const handlePrint = () => window.print();
+  const handlePrint = () => {
+    // If a thermal size is selected, open a focused print window sized for the label
+    if (thermalSize && previewRef.current) {
+      const content = previewRef.current.innerHTML;
+      const pageSize =
+        thermalSize === "3x5" ? "3in 5in" : thermalSize === "4x4" ? "4in 4in" : "4in 6in";
+      const w = window.open("", "_blank", "noopener,noreferrer");
+      if (!w) return;
+      // <base> lets the logo's bundled path resolve inside the blank print window.
+      const base = `<base href="${window.location.origin}/">`;
+      const style = `@page { size: ${pageSize}; margin: 0; } body{ margin:0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }`;
+      w.document.write(`<!doctype html><html><head><meta charset=\"utf-8\">${base}<title>Label</title><style>${style}</style></head><body>${content}</body></html>`);
+      w.document.close();
+      w.focus();
+      // Wait for the logo image to load before printing, with a timeout fallback.
+      const imgs = Array.from(w.document.images);
+      const ready = Promise.all(
+        imgs.map((img) =>
+          img.complete
+            ? Promise.resolve()
+            : new Promise<void>((resolve) => {
+                img.addEventListener("load", () => resolve(), { once: true });
+                img.addEventListener("error", () => resolve(), { once: true });
+              })
+        )
+      );
+      Promise.race([ready, new Promise((r) => setTimeout(r, 1500))]).then(() => {
+        w.focus();
+        w.print();
+        w.close();
+      });
+      return;
+    }
+    window.print();
+  };
 
   const handleDownloadPdf = async () => {
     const source = previewRef.current;
@@ -298,6 +334,7 @@ const DrumLabel = () => {
       qtyUnit: "kgs",
     });
     setStickersPerPage(1);
+    setThermalSize(null);
   };
 
   const withUnit = (v: string) => (v ? `${v} ${form.qtyUnit}` : "");
@@ -645,8 +682,11 @@ const DrumLabel = () => {
 
           <div className="layout-picker">
             <button
-              className={`layout-picker__option ${stickersPerPage === 1 ? "layout-picker__option--active" : ""}`}
-              onClick={() => setStickersPerPage(1)}
+              className={`layout-picker__option ${!thermalSize && stickersPerPage === 1 ? "layout-picker__option--active" : ""}`}
+              onClick={() => {
+                setStickersPerPage(1);
+                setThermalSize(null);
+              }}
             >
               <div className="layout-picker__preview layout-picker__preview--single">
                 <div className="layout-picker__mini-label" />
@@ -656,8 +696,11 @@ const DrumLabel = () => {
             </button>
 
             <button
-              className={`layout-picker__option ${stickersPerPage === 2 ? "layout-picker__option--active" : ""}`}
-              onClick={() => setStickersPerPage(2)}
+              className={`layout-picker__option ${!thermalSize && stickersPerPage === 2 ? "layout-picker__option--active" : ""}`}
+              onClick={() => {
+                setStickersPerPage(2);
+                setThermalSize(null);
+              }}
             >
               <div className="layout-picker__preview layout-picker__preview--double">
                 <div className="layout-picker__mini-label" />
@@ -665,6 +708,55 @@ const DrumLabel = () => {
               </div>
               <span className="layout-picker__text">2 Stickers</span>
               <span className="layout-picker__desc">A4 sheet, vertical, cut line</span>
+            </button>
+          </div>
+
+          <h3 className="wizard-card__title" style={{ fontSize: 16, marginTop: 24 }}>
+            Thermal Printer Label
+          </h3>
+          <p className="wizard-card__subtitle">Roll-fed thermal sizes (1 label per print)</p>
+
+          <div className="layout-picker">
+            <button
+              className={`layout-picker__option ${thermalSize === "3x5" ? "layout-picker__option--active" : ""}`}
+              onClick={() => {
+                setThermalSize("3x5");
+                setStickersPerPage(1);
+              }}
+            >
+              <div className="layout-picker__preview layout-picker__preview--single">
+                <div className="layout-picker__mini-label" />
+              </div>
+              <span className="layout-picker__text">Thermal 3 × 5</span>
+              <span className="layout-picker__desc">Thermal printer label (3in × 5in)</span>
+            </button>
+
+            <button
+              className={`layout-picker__option ${thermalSize === "4x4" ? "layout-picker__option--active" : ""}`}
+              onClick={() => {
+                setThermalSize("4x4");
+                setStickersPerPage(1);
+              }}
+            >
+              <div className="layout-picker__preview layout-picker__preview--single">
+                <div className="layout-picker__mini-label" />
+              </div>
+              <span className="layout-picker__text">Thermal 4 × 4</span>
+              <span className="layout-picker__desc">Thermal printer label (4in × 4in)</span>
+            </button>
+
+            <button
+              className={`layout-picker__option ${thermalSize === "4x6" ? "layout-picker__option--active" : ""}`}
+              onClick={() => {
+                setThermalSize("4x6");
+                setStickersPerPage(1);
+              }}
+            >
+              <div className="layout-picker__preview layout-picker__preview--single">
+                <div className="layout-picker__mini-label" />
+              </div>
+              <span className="layout-picker__text">Thermal 4 × 6</span>
+              <span className="layout-picker__desc">Thermal printer label (4in × 6in)</span>
             </button>
           </div>
 
@@ -679,14 +771,14 @@ const DrumLabel = () => {
       )}
 
       {/* ── Step 4: Preview (single) ─────────────────── */}
-      {step === "preview" && stickersPerPage === 1 && (
+      {step === "preview" && !thermalSize && stickersPerPage === 1 && (
         <div className="label-preview" ref={previewRef}>
           <ChemicalLabel {...labelProps} />
         </div>
       )}
 
       {/* ── Step 4: Preview (2-up A4 sheet) ──────────── */}
-      {step === "preview" && stickersPerPage === 2 && (
+      {step === "preview" && !thermalSize && stickersPerPage === 2 && (
         <div className="a4-sheet" ref={previewRef}>
           <div className="a4-sheet__meta-top">
             <span>A4 &bull; 210 &times; 297 mm &bull; Portrait &bull; 2 labels / sheet &bull; Laxmi Chemicals</span>
@@ -718,6 +810,25 @@ const DrumLabel = () => {
           </div>
         </div>
       )}
+
+        {/* ── Step 4: Preview (Thermal labels) ─────────── */}
+        {step === "preview" && thermalSize && (
+          <div className="label-preview" ref={previewRef}>
+            <ThermalLabel
+              productName={form.productName || "Product"}
+              invoice={form.invoice}
+              batchNo={form.batchNo}
+              mfgDate={labelProps.mfgDate}
+              expDate={labelProps.expDate}
+              make={form.make}
+              netQty={labelProps.netQty}
+              tareQty={labelProps.tareQty}
+              grossQty={labelProps.grossQty}
+              safety={labelProps.safety}
+              size={thermalSize}
+            />
+          </div>
+        )}
     </div>
   );
 };
