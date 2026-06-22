@@ -1,6 +1,8 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import html2pdf from "html2pdf.js";
+import { toCanvas as htmlToCanvas } from "html-to-image";
+import { jsPDF } from "jspdf";
 import ChemicalLabel from "@/components/ChemicalLabel";
 import ThermalLabel from "@/components/ThermalLabel";
 import { productCategories } from "@/data/products";
@@ -45,12 +47,17 @@ const DrumLabel = () => {
   const [authError, setAuthError] = useState(false);
 
   const previewRef = useRef<HTMLDivElement | null>(null);
+  const exportRef = useRef<HTMLDivElement | null>(null);
   const [downloading, setDownloading] = useState(false);
 
   const [step, setStep] = useState<Step>("select-product");
   const [search, setSearch] = useState("");
   const [stickersPerPage, setStickersPerPage] = useState<1 | 2>(1);
-  const [thermalSize, setThermalSize] = useState<null | "3x5" | "4x4" | "4x6">(null);
+  const [thermalSize, setThermalSize] = useState<null | "3x5" | "4x4" | "4x6" | "6x4">(null);
+  const [copies, setCopies] = useState(1);
+  // The thermal preview IS the generated image, so what you see === what downloads.
+  const [thermalUrl, setThermalUrl] = useState<string | null>(null);
+  const [thermalDims, setThermalDims] = useState<{ wIn: number; hIn: number } | null>(null);
   const [form, setForm] = useState<LabelFormData>({
     productName: "",
     batchNo: "",
@@ -90,20 +97,28 @@ const DrumLabel = () => {
   };
 
   const handlePrint = () => {
-    // If a thermal size is selected, open a focused print window sized for the label
-    if (thermalSize && previewRef.current) {
-      const content = previewRef.current.innerHTML;
+    // For thermal: print the SAME generated image that is shown/downloaded,
+    // so the print exactly matches the preview.
+    if (thermalSize && thermalUrl) {
       const pageSize =
-        thermalSize === "3x5" ? "3in 5in" : thermalSize === "4x4" ? "4in 4in" : "4in 6in";
+        thermalSize === "3x5"
+          ? "3in 5in"
+          : thermalSize === "4x4"
+          ? "4in 4in"
+          : thermalSize === "6x4"
+          ? "6in 4in"
+          : "4in 6in";
+      const count = Math.max(1, Math.min(99, Math.floor(copies) || 1));
+      // One label image per page, repeated for the requested number of copies.
+      const pages = Array.from({ length: count })
+        .map(() => `<img class="label-copy" src="${thermalUrl}" />`)
+        .join("");
       const w = window.open("", "_blank", "noopener,noreferrer");
       if (!w) return;
-      // <base> lets the logo's bundled path resolve inside the blank print window.
-      const base = `<base href="${window.location.origin}/">`;
-      const style = `@page { size: ${pageSize}; margin: 0; } body{ margin:0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }`;
-      w.document.write(`<!doctype html><html><head><meta charset=\"utf-8\">${base}<title>Label</title><style>${style}</style></head><body>${content}</body></html>`);
+      const style = `@page { size: ${pageSize}; margin: 0; } html,body{ margin:0; padding:0; } .label-copy{ display:block; width:100%; height:100%; object-fit:contain; break-after: page; page-break-after: always; } .label-copy:last-child{ break-after: auto; page-break-after: auto; }`;
+      w.document.write(`<!doctype html><html><head><meta charset=\"utf-8\"><title>Label</title><style>${style}</style></head><body>${pages}</body></html>`);
       w.document.close();
       w.focus();
-      // Wait for the logo image to load before printing, with a timeout fallback.
       const imgs = Array.from(w.document.images);
       const ready = Promise.all(
         imgs.map((img) =>
@@ -115,7 +130,7 @@ const DrumLabel = () => {
               })
         )
       );
-      Promise.race([ready, new Promise((r) => setTimeout(r, 1500))]).then(() => {
+      Promise.race([ready, new Promise((r) => setTimeout(r, 1000))]).then(() => {
         w.focus();
         w.print();
         w.close();
@@ -335,6 +350,7 @@ const DrumLabel = () => {
     });
     setStickersPerPage(1);
     setThermalSize(null);
+    setCopies(1);
   };
 
   const withUnit = (v: string) => (v ? `${v} ${form.qtyUnit}` : "");
@@ -350,6 +366,133 @@ const DrumLabel = () => {
     tareQty: withUnit(form.tareQty),
     grossQty: withUnit(form.grossQty),
     safety: getProductSafety(form.productName),
+  };
+
+  // Shared props for the thermal label (preview + export render)
+  const thermalProps = {
+    productName: form.productName || "Product",
+    invoice: form.invoice,
+    batchNo: form.batchNo,
+    mfgDate: labelProps.mfgDate,
+    expDate: labelProps.expDate,
+    make: form.make,
+    netQty: labelProps.netQty,
+    tareQty: labelProps.tareQty,
+    grossQty: labelProps.grossQty,
+    safety: labelProps.safety,
+  };
+
+  /* ── Thermal export (SEZNIK Shakti 4×6, 203 DPI) ─────
+     html2canvas can't reliably capture content that sits under a CSS-rotated
+     ancestor (the text collapses). So we snapshot a separate, hidden, NON-
+     rotated landscape copy at the printer's native 203 DPI, then rotate the
+     bitmap for portrait media. */
+  const THERMAL_LANDSCAPE: Record<string, "3x5" | "4x4" | "4x6" | "6x4" | "5x3"> = {
+    "3x5": "5x3",
+    "4x4": "4x4",
+    "4x6": "6x4",
+    "6x4": "6x4",
+  };
+  const THERMAL_INCHES: Record<string, [number, number]> = {
+    "3x5": [3, 5],
+    "4x4": [4, 4],
+    "4x6": [4, 6],
+    "6x4": [6, 4],
+  };
+
+  const captureThermalCanvas = async (): Promise<
+    { canvas: HTMLCanvasElement; wIn: number; hIn: number } | null
+  > => {
+    const el = exportRef.current?.querySelector<HTMLElement>(".thermal-label");
+    if (!el || !thermalSize) return null;
+
+    // Wait for the logo to finish loading
+    const imgs = Array.from(el.querySelectorAll<HTMLImageElement>("img"));
+    await Promise.all(
+      imgs.map((img) =>
+        img.complete
+          ? Promise.resolve()
+          : new Promise<void>((resolve) => {
+              img.addEventListener("load", () => resolve(), { once: true });
+              img.addEventListener("error", () => resolve(), { once: true });
+            })
+      )
+    );
+
+    // html-to-image rasterises through the BROWSER's own layout engine (SVG
+    // foreignObject), so flexbox fills exactly as it does on screen — unlike
+    // html2canvas which re-implements layout and ignored flex-grow.
+    const raw = await htmlToCanvas(el, {
+      pixelRatio: 203 / 96, // the printer's native 203 DPI
+      backgroundColor: "#ffffff",
+      width: el.offsetWidth,
+      height: el.offsetHeight,
+      cacheBust: true,
+    });
+
+    const [wIn, hIn] = THERMAL_INCHES[thermalSize];
+    if (hIn <= wIn) return { canvas: raw, wIn, hIn }; // landscape / square — no turn
+
+    // Portrait media: rotate the landscape bitmap 90° clockwise
+    const out = document.createElement("canvas");
+    out.width = raw.height;
+    out.height = raw.width;
+    const ctx = out.getContext("2d");
+    if (!ctx) return { canvas: raw, wIn, hIn };
+    ctx.translate(out.width / 2, out.height / 2);
+    ctx.rotate(Math.PI / 2);
+    ctx.drawImage(raw, -raw.width / 2, -raw.height / 2);
+    return { canvas: out, wIn, hIn };
+  };
+
+  const safeName = () => (form.productName || "label").replace(/[^\w-]+/g, "_");
+
+  // Build the thermal label image once on the preview step — this exact image
+  // is shown AND downloaded/printed, so the preview can never differ from the file.
+  useEffect(() => {
+    if (step !== "preview" || !thermalSize) {
+      setThermalUrl(null);
+      setThermalDims(null);
+      return;
+    }
+    let cancelled = false;
+    setThermalUrl(null);
+    (async () => {
+      // let the hidden render mount/paint first
+      await new Promise((r) => requestAnimationFrame(() => r(null)));
+      const result = await captureThermalCanvas();
+      if (!cancelled && result) {
+        setThermalUrl(result.canvas.toDataURL("image/png"));
+        setThermalDims({ wIn: result.wIn, hIn: result.hIn });
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step, thermalSize, JSON.stringify(thermalProps)]);
+
+  const handleDownloadThermalPng = () => {
+    if (!thermalUrl) return;
+    const a = document.createElement("a");
+    a.href = thermalUrl;
+    a.download = `${safeName()}_${thermalSize}_thermal.png`;
+    a.click();
+  };
+
+  const handleDownloadThermalPdf = () => {
+    if (!thermalUrl || !thermalDims) return;
+    const { wIn, hIn } = thermalDims;
+    const orientation = wIn > hIn ? "landscape" : "portrait";
+    const pdf = new jsPDF({ orientation, unit: "in", format: [wIn, hIn] });
+    const pw = pdf.internal.pageSize.getWidth();
+    const ph = pdf.internal.pageSize.getHeight();
+    const count = Math.max(1, Math.min(99, Math.floor(copies) || 1));
+    for (let i = 0; i < count; i++) {
+      if (i > 0) pdf.addPage([wIn, hIn], orientation);
+      pdf.addImage(thermalUrl, "PNG", 0, 0, pw, ph);
+    }
+    pdf.save(`${safeName()}_${thermalSize}_thermal.pdf`);
   };
 
   /* ── Step Indicator ────────────────────────────────── */
@@ -443,18 +586,68 @@ const DrumLabel = () => {
             >
               New Label
             </button>
-            <button
-              className="drum-label-page__btn drum-label-page__btn--back"
-              onClick={handleDownloadPdf}
-              disabled={downloading}
-            >
-              {downloading ? "Generating..." : "\u2B07 Download PDF"}
-            </button>
+            {!thermalSize && (
+              <button
+                className="drum-label-page__btn drum-label-page__btn--back"
+                onClick={handleDownloadPdf}
+                disabled={downloading}
+              >
+                {downloading ? "Generating..." : "\u2B07 Download PDF"}
+              </button>
+            )}
+            {thermalSize && (
+              <>
+                <label
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 6,
+                    fontSize: 13,
+                    fontWeight: 600,
+                    color: "#333",
+                  }}
+                >
+                  Copies
+                  <input
+                    type="number"
+                    min={1}
+                    max={99}
+                    value={copies}
+                    onChange={(e) =>
+                      setCopies(Math.max(1, Math.min(99, Math.floor(Number(e.target.value)) || 1)))
+                    }
+                    style={{
+                      width: 56,
+                      padding: "6px 8px",
+                      border: "1px solid #ccc",
+                      borderRadius: 6,
+                      fontSize: 14,
+                      textAlign: "center",
+                    }}
+                  />
+                </label>
+                <button
+                  className="drum-label-page__btn drum-label-page__btn--back"
+                  onClick={handleDownloadThermalPng}
+                  disabled={downloading}
+                  title="Best for the SEZNIK app \u2014 exact label size at 203 DPI"
+                >
+                  {downloading ? "Generating..." : "\u2B07 PNG (for app)"}
+                </button>
+                <button
+                  className="drum-label-page__btn drum-label-page__btn--back"
+                  onClick={handleDownloadThermalPdf}
+                  disabled={downloading}
+                >
+                  {downloading ? "Generating..." : "\u2B07 PDF"}
+                </button>
+              </>
+            )}
             <button
               className="drum-label-page__btn drum-label-page__btn--print"
               onClick={handlePrint}
             >
-              Print Label
+              {thermalSize && copies > 1 ? `Print ${copies} Labels` : "Print Label"}
             </button>
           </>
         )}
@@ -714,7 +907,7 @@ const DrumLabel = () => {
           <h3 className="wizard-card__title" style={{ fontSize: 16, marginTop: 24 }}>
             Thermal Printer Label
           </h3>
-          <p className="wizard-card__subtitle">Roll-fed thermal sizes (1 label per print)</p>
+          <p className="wizard-card__subtitle">Roll-fed thermal sizes &bull; set the number of copies before printing</p>
 
           <div className="layout-picker">
             <button
@@ -755,8 +948,22 @@ const DrumLabel = () => {
               <div className="layout-picker__preview layout-picker__preview--single">
                 <div className="layout-picker__mini-label" />
               </div>
-              <span className="layout-picker__text">Thermal 4 × 6</span>
-              <span className="layout-picker__desc">Thermal printer label (4in × 6in)</span>
+              <span className="layout-picker__text">Thermal 4 × 6 ✓</span>
+              <span className="layout-picker__desc">Recommended — SEZNIK Shakti 4×6 (4in × 6in, 203 DPI)</span>
+            </button>
+
+            <button
+              className={`layout-picker__option ${thermalSize === "6x4" ? "layout-picker__option--active" : ""}`}
+              onClick={() => {
+                setThermalSize("6x4");
+                setStickersPerPage(1);
+              }}
+            >
+              <div className="layout-picker__preview layout-picker__preview--single">
+                <div className="layout-picker__mini-label" />
+              </div>
+              <span className="layout-picker__text">Thermal 6 × 4</span>
+              <span className="layout-picker__desc">Landscape (6in × 4in) — needs 6in-wide stock</span>
             </button>
           </div>
 
@@ -813,21 +1020,43 @@ const DrumLabel = () => {
 
         {/* ── Step 4: Preview (Thermal labels) ─────────── */}
         {step === "preview" && thermalSize && (
-          <div className="label-preview" ref={previewRef}>
-            <ThermalLabel
-              productName={form.productName || "Product"}
-              invoice={form.invoice}
-              batchNo={form.batchNo}
-              mfgDate={labelProps.mfgDate}
-              expDate={labelProps.expDate}
-              make={form.make}
-              netQty={labelProps.netQty}
-              tareQty={labelProps.tareQty}
-              grossQty={labelProps.grossQty}
-              safety={labelProps.safety}
-              size={thermalSize}
-            />
-          </div>
+          <>
+            {/* The preview IS the generated image → it can't differ from the file. */}
+            <div className="label-preview" ref={previewRef}>
+              {thermalUrl ? (
+                <img
+                  src={thermalUrl}
+                  alt={`${form.productName} label`}
+                  style={{
+                    width: `${THERMAL_INCHES[thermalSize][0]}in`,
+                    height: `${THERMAL_INCHES[thermalSize][1]}in`,
+                    display: "block",
+                    background: "#fff",
+                    boxShadow: "0 2px 14px rgba(0,0,0,0.18)",
+                  }}
+                />
+              ) : (
+                <div style={{ padding: 48, color: "#666", fontSize: 14 }}>
+                  Generating label…
+                </div>
+              )}
+            </div>
+
+            {/* Hidden, NON-rotated landscape copy — captured for the crisp
+                203 DPI image (no CSS-transform ancestor to garble it). */}
+            <div
+              aria-hidden
+              style={{ position: "absolute", left: -99999, top: 0, pointerEvents: "none" }}
+            >
+              <div ref={exportRef}>
+                <ThermalLabel
+                  {...thermalProps}
+                  size={THERMAL_LANDSCAPE[thermalSize]}
+                  rotate={false}
+                />
+              </div>
+            </div>
+          </>
         )}
     </div>
   );
