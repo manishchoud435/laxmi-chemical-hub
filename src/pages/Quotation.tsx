@@ -285,6 +285,11 @@ export default function Quotation() {
             img.addEventListener("error", () => res(), { once: true });
           })
     ));
+    // Force the desktop layout for the PDF regardless of the device's screen.
+    // The preview uses viewport-based breakpoints (md:/sm:), so on a phone it
+    // stacks into one column. We render the html2canvas clone at a desktop
+    // width so those breakpoints apply and the PDF matches the desktop output.
+    const PDF_WIDTH = 1024;
     try {
       await html2pdf()
         .from(source)
@@ -292,7 +297,20 @@ export default function Quotation() {
           margin: 8,
           filename,
           image: { type: "jpeg", quality: 0.98 },
-          html2canvas: { scale: 2, useCORS: true, backgroundColor: "#ffffff", logging: false },
+          html2canvas: {
+            scale: 2,
+            useCORS: true,
+            backgroundColor: "#ffffff",
+            logging: false,
+            windowWidth: PDF_WIDTH,
+            onclone: (clonedDoc: Document) => {
+              const root = clonedDoc.getElementById("quotation-pdf-root");
+              if (root) {
+                root.style.width = `${PDF_WIDTH}px`;
+                root.style.maxWidth = "none";
+              }
+            },
+          },
           jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
           // @ts-ignore
           pagebreak: { mode: ["css", "legacy"] },
@@ -650,7 +668,7 @@ export default function Quotation() {
 
         {/* ── Full-width quotation preview ── */}
         <section className="overflow-x-auto rounded-[24px] border border-slate-200 bg-white p-2 shadow-[var(--shadow-card)] sm:rounded-[28px] sm:p-4 dark:border-slate-800 dark:bg-slate-900">
-          <div ref={previewRef}>
+          <div ref={previewRef} id="quotation-pdf-root">
             <QuotationPreview
               docType={docType}
               companyLogoUrl={logo}
