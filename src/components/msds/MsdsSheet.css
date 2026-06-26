@@ -13,8 +13,10 @@
   --tint: #fbe9ec;
   --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
 
+  /* Fixed A4-proportioned desktop document — never re-flows by viewport, so the
+     PDF is identical whether downloaded from a phone or a laptop. On small
+     screens the preview wrapper (.overflow-x-auto) scrolls horizontally. */
   width: 794px;
-  max-width: 100%;
   margin: 0 auto;
   background: #fff;
   color: var(--ink);
@@ -126,8 +128,3 @@ table.msds-tbl td { padding: 6px 9px; border: 1px solid var(--line); vertical-al
 .msds-disclaimer { margin-top: 22px; padding-top: 13px; border-top: 2px solid var(--ink); font-size: 10.5px; color: var(--ink-2); line-height: 1.6; }
 .msds-disclaimer b { color: var(--ink); }
 .msds-foot { margin-top: 12px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 6px; font-size: 10px; color: var(--ink-2); }
-
-@media (max-width: 540px) {
-  .msds-sheet { padding: 20px 16px; }
-  .msds-row { grid-template-columns: 1fr; gap: 1px; }
-}
