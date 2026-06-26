@@ -1,4 +1,5 @@
 import { MapPin, Phone, Mail } from "lucide-react";
+import { Link } from "react-router-dom";
 import logo from "@/assets/laxmi-chemicals-logo.png";
 
 const Footer = () => {
@@ -41,6 +42,11 @@ const Footer = () => {
                 <a href="#contact" className="text-primary-foreground/80 hover:text-primary-foreground transition-colors">
                   Contact
                 </a>
+              </li>
+              <li>
+                <Link to="/msds" className="text-primary-foreground/80 hover:text-primary-foreground transition-colors">
+                  Safety Data Sheets (MSDS)
+                </Link>
               </li>
             </ul>
           </div>

@@ -7,6 +7,7 @@ import Index from "./pages/Index";
 import DrumLabel from "./pages/DrumLabel";
 import Quotation from "./pages/Quotation";
 import LetterPad from "./pages/LetterPad";
+import Msds from "./pages/Msds";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -22,6 +23,7 @@ const App = () => (
           <Route path="/drum-label" element={<DrumLabel />} />
           <Route path="/quotation" element={<Quotation />} />
           <Route path="/letter-pad" element={<LetterPad />} />
+          <Route path="/msds" element={<Msds />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
