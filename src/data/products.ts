@@ -80,6 +80,7 @@ export const productCategories: ProductCategory[] = [
     products: [
       "Ethyl Acetate (EA)",
       "Ethyl Acetate 99.70%",
+      "Mixed Xylene (MX)",
       "Pure Solvents",
       "Paint Thinner",
       "NC Thinner",

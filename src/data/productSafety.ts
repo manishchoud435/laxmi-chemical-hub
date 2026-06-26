@@ -28,6 +28,22 @@ const defaultSafety: ProductSafety = {
 };
 
 const safetyData: Record<string, ProductSafety> = {
+  "Mixed Xylene (MX)": {
+    hazardous: "Flammable liquid and vapour. Harmful if inhaled or swallowed. Causes skin irritation. May cause drowsiness, dizziness and headache.",
+    precautionary: [
+      "Keep away from heat, sparks, open flames and hot surfaces. No smoking.",
+      "Keep container tightly closed. Use only in well-ventilated areas.",
+      "Wear protective gloves, clothing and eye protection.",
+      "Avoid breathing vapour or mist. Avoid prolonged skin contact.",
+    ],
+    skinContact: "Remove contaminated clothing. Wash skin with plenty of soap and water for at least 15 minutes. Seek medical advice if irritation persists.",
+    inhalationIngestion: "Inhalation – move to fresh air; give oxygen if breathing is difficult. Contact a doctor.\nIngestion – do NOT induce vomiting (aspiration hazard). Rinse mouth. Seek immediate medical attention.",
+    firstAidEye: "Rinse cautiously with water for at least 15 minutes. Remove contact lenses if present. Seek medical attention.",
+    disposalSpill: "Eliminate all ignition sources. Absorb spill with inert material (sand/vermiculite). Dispose as per local regulations. Prevent entry into drains.",
+    storage: "Cool, dry, well-ventilated place. Away from ignition sources and oxidisers.",
+    fireClass: "Flammable liquid (UN 1307). Use foam, dry chemical, CO2 or water fog. Do not use water jet.",
+  },
+
   "Sulphuric Acid (H2SO4)": {
     hazardous: "Strongly corrosive. Causes severe skin burns and serious eye damage. Harmful if inhaled; mist irritates the respiratory tract. Reacts violently with water.",
     precautionary: [
