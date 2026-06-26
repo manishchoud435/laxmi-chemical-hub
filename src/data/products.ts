@@ -32,7 +32,8 @@ export const productCategories: ProductCategory[] = [
     title: "Cosmetics Products",
     products: [
       "Iso propyl Alcohol (IPA)",
-      "M-E-G",
+      "Mono Ethylene Glycol (MEG)",
+      "Diethylene Glycol (DEG)",
       "Di Propylene Glycol (DPG)",
       "Polyethylene Glycol (PEG)",
     ],
@@ -66,8 +67,13 @@ export const productCategories: ProductCategory[] = [
   },
   {
     title: "Plasticizer and Food Chemicals",
-    products: ["Butyl Carbitol", "EDTA Tetra Sodium", "Sorbitol"],
+    products: ["Diethyl Phthalate (DEP)", "Butyl Carbitol", "EDTA Tetra Sodium", "Sorbitol"],
     icon: "\uD83E\uDDEA",
+  },
+  {
+    title: "Acids",
+    products: ["Sulphuric Acid (H2SO4)", "Hydrochloric Acid (HCl)"],
+    icon: "\u26A0\uFE0F",
   },
   {
     title: "Coating Paints",
