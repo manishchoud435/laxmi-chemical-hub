@@ -55,6 +55,37 @@ const GhsExclamation = () => (
   </svg>
 );
 
+/** GHS "toxic" — skull & crossbones in a red diamond. */
+const GhsToxic = () => (
+  <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+    <polygon points="50,4 96,50 50,96 4,50" fill="#FFF" stroke={BRAND} strokeWidth="7" strokeLinejoin="round" />
+    {/* crossbones (behind the skull) */}
+    <g stroke="#000" strokeWidth="6" strokeLinecap="round">
+      <line x1="35" y1="62" x2="65" y2="84" />
+      <line x1="65" y1="62" x2="35" y2="84" />
+    </g>
+    <g fill="#000">
+      <circle cx="35" cy="62" r="5" />
+      <circle cx="35" cy="84" r="5" />
+      <circle cx="65" cy="62" r="5" />
+      <circle cx="65" cy="84" r="5" />
+      {/* skull head */}
+      <path d="M50 22 C37 22 29 31 29 43 C29 50 32 55 37 58 L37 64 C37 67 40 69 43 69 L57 69 C60 69 63 67 63 64 L63 58 C68 55 71 50 71 43 C71 31 63 22 50 22 Z" />
+    </g>
+    {/* eyes + nose */}
+    <circle cx="42" cy="44" r="5.5" fill="#FFF" />
+    <circle cx="58" cy="44" r="5.5" fill="#FFF" />
+    <path d="M50 50 L45.5 59 L54.5 59 Z" fill="#FFF" />
+  </svg>
+);
+
+/** Maps a safety pictogram key to its component. */
+const PICTOGRAMS: Record<string, React.FC> = {
+  exclamation: GhsExclamation,
+  flame: GhsFlame,
+  toxic: GhsToxic,
+};
+
 /* ── Contact icons (brand colour) ───────────────────── */
 
 const WhatsAppIcon = ({ size = 12 }: { size?: number }) => (
@@ -192,7 +223,7 @@ const ThermalLabel = ({
 
   const present = (
     [
-      ["INVOICE", invoice],
+      ["INVOICE NO", invoice],
       ["BATCH NO", batchNo],
       ["MFG DATE", mfgDate],
       ["EXP DATE", expDate],
@@ -316,13 +347,18 @@ const ThermalLabel = ({
                     gap: 6,
                   }}
                 >
-                  <div style={{ display: "flex", gap: 5 }}>
-                    <div style={{ width: 40, height: 40 }}>
-                      <GhsExclamation />
-                    </div>
-                    <div style={{ width: 40, height: 40 }}>
-                      <GhsFlame />
-                    </div>
+                  <div style={{ display: "flex", gap: 5, flexWrap: "wrap", justifyContent: "center" }}>
+                    {(safety.pictograms && safety.pictograms.length
+                      ? safety.pictograms
+                      : ["exclamation", "flame"]
+                    ).map((key, i) => {
+                      const P = PICTOGRAMS[key];
+                      return P ? (
+                        <div key={i} style={{ width: 40, height: 40 }}>
+                          <P />
+                        </div>
+                      ) : null;
+                    })}
                   </div>
                   <div
                     style={{

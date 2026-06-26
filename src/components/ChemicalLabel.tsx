@@ -168,7 +168,7 @@ const ChemicalLabel = ({
           </div>
 
           <div className="cl__data-card">
-            <DataRow label="INVOICE" value={invoice} red alwaysShow />
+            <DataRow label="INVOICE NO" value={invoice} red alwaysShow />
             <DataRow label="BATCH" value={batchNo} alwaysShow />
             <DataRow label="MFG DATE" value={mfgDate} red alwaysShow />
             <DataRow label="EXP DATE" value={expDate} red alwaysShow />

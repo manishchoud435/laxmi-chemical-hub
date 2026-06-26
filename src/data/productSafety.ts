@@ -7,6 +7,8 @@ export interface ProductSafety {
   disposalSpill: string;
   storage: string;
   fireClass: string;
+  /** GHS hazard pictograms to show on the label. Defaults to ["exclamation","flame"]. */
+  pictograms?: ("exclamation" | "flame" | "toxic" | "corrosive")[];
 }
 
 const defaultSafety: ProductSafety = {
@@ -26,6 +28,88 @@ const defaultSafety: ProductSafety = {
 };
 
 const safetyData: Record<string, ProductSafety> = {
+  "Sulphuric Acid (H2SO4)": {
+    hazardous: "Strongly corrosive. Causes severe skin burns and serious eye damage. Harmful if inhaled; mist irritates the respiratory tract. Reacts violently with water.",
+    precautionary: [
+      "Wear acid-resistant gloves, apron, face shield and goggles.",
+      "Always add acid to water, never water to acid.",
+      "Do not breathe mist or vapours. Use only with adequate ventilation.",
+      "Keep away from metals, alkalis and combustible materials.",
+    ],
+    skinContact: "Immediately flush with plenty of water for at least 30 minutes. Remove contaminated clothing. Do not neutralize. Seek medical attention immediately.",
+    inhalationIngestion: "Inhalation – move to fresh air at once; give oxygen if breathing is difficult. Contact a doctor.\nIngestion – do NOT induce vomiting. Rinse mouth, drink water. Seek immediate medical attention.",
+    firstAidEye: "Rinse cautiously with water for at least 30 minutes, holding eyelids open. Remove contact lenses if present. Seek immediate medical attention.",
+    disposalSpill: "Ventilate area. Cautiously neutralize with lime or soda ash and absorb with inert material. Dispose as hazardous waste per local regulations.",
+    storage: "Cool, dry, well-ventilated area. Acid-resistant flooring. Away from metals, alkalis and organics.",
+    fireClass: "Non-combustible (corrosive, UN 1830). Use media suitable for surrounding fire; do not use water jet on the acid.",
+    pictograms: ["exclamation", "toxic"],
+  },
+
+  "Hydrochloric Acid (HCl)": {
+    hazardous: "Corrosive. Causes severe skin burns and serious eye damage. Vapours severely irritate the eyes, nose and respiratory system.",
+    precautionary: [
+      "Wear acid-resistant gloves, apron, face shield and goggles.",
+      "Do not breathe vapours or mist. Use only in well-ventilated areas.",
+      "Keep container tightly closed. Keep away from metals and alkalis.",
+      "Take precautionary measures against static and incompatible chemicals.",
+    ],
+    skinContact: "Immediately wash with plenty of water for at least 15–20 minutes. Remove contaminated clothing. Seek medical attention.",
+    inhalationIngestion: "Inhalation – move to fresh air immediately; give oxygen if breathing is difficult. Contact a doctor.\nIngestion – do NOT induce vomiting. Rinse mouth and drink water. Seek immediate medical attention.",
+    firstAidEye: "Rinse cautiously with water for at least 15 minutes, holding eyelids open. Remove contact lenses if present. Seek immediate medical attention.",
+    disposalSpill: "Ventilate area. Neutralize cautiously with soda ash or lime and absorb with inert material. Dispose as hazardous waste per local regulations.",
+    storage: "Cool, dry, well-ventilated place. Keep tightly closed, away from metals, alkalis and oxidisers.",
+    fireClass: "Non-combustible (corrosive, UN 1789). Use media appropriate for the surrounding fire.",
+    pictograms: ["exclamation", "toxic"],
+  },
+
+  "Mono Ethylene Glycol (MEG)": {
+    hazardous: "Harmful if swallowed. May cause damage to organs (kidneys) through prolonged or repeated exposure. Causes mild eye and skin irritation.",
+    precautionary: [
+      "Wear protective gloves and eye protection.",
+      "Do not eat, drink or smoke when using this product.",
+      "Avoid breathing vapour or mist; use in well-ventilated areas.",
+      "Keep container tightly closed and out of reach of children and animals.",
+    ],
+    skinContact: "Wash with plenty of soap and water. Remove contaminated clothing. Seek medical advice if irritation persists.",
+    inhalationIngestion: "Inhalation – move to fresh air. Contact a doctor if symptoms persist.\nIngestion – rinse mouth, do not induce vomiting. Seek medical attention immediately (toxic if swallowed).",
+    firstAidEye: "Rinse cautiously with water for several minutes. Remove contact lenses if present. Seek medical advice if irritation persists.",
+    disposalSpill: "Absorb spill with inert material. Dispose of contents and container as per local regulations. Prevent entry into drains and waterways.",
+    storage: "Cool, dry, well-ventilated place. Keep container tightly closed.",
+    fireClass: "Combustible liquid. Use dry chemical, CO2, foam or water fog.",
+  },
+
+  "Diethylene Glycol (DEG)": {
+    hazardous: "Harmful if swallowed – toxic to kidneys and central nervous system. Causes mild eye and skin irritation.",
+    precautionary: [
+      "Wear protective gloves and eye protection.",
+      "Do not eat, drink or smoke when using this product.",
+      "Avoid breathing vapour or mist; use in well-ventilated areas.",
+      "Keep tightly closed and away from food, drink and animal feed.",
+    ],
+    skinContact: "Wash with plenty of soap and water. Remove contaminated clothing. Seek medical advice if irritation persists.",
+    inhalationIngestion: "Inhalation – move to fresh air. Contact a doctor if symptoms persist.\nIngestion – rinse mouth, do not induce vomiting. Seek immediate medical attention (harmful/toxic if swallowed).",
+    firstAidEye: "Rinse cautiously with water for several minutes. Remove contact lenses if present. Seek medical advice if irritation persists.",
+    disposalSpill: "Absorb with inert material. Dispose of contents and container per local regulations. Prevent entry into drains and waterways.",
+    storage: "Cool, dry, well-ventilated place. Keep container tightly closed.",
+    fireClass: "Combustible liquid. Use dry chemical, CO2, foam or water fog.",
+  },
+
+  "Diethyl Phthalate (DEP)": {
+    hazardous: "May cause mild irritation to skin and eyes. Avoid prolonged or repeated contact and inhalation of mist.",
+    precautionary: [
+      "Wear protective gloves and eye protection.",
+      "Avoid breathing mist or vapour; use in well-ventilated areas.",
+      "Wash thoroughly after handling.",
+      "Keep container tightly closed.",
+    ],
+    skinContact: "Wash with soap and water. Remove contaminated clothing. Seek medical advice if irritation persists.",
+    inhalationIngestion: "Inhalation – move to fresh air. Contact a doctor if symptoms persist.\nIngestion – rinse mouth with water. Do not induce vomiting. Seek medical advice.",
+    firstAidEye: "Rinse cautiously with water for several minutes. Remove contact lenses if present. Seek medical advice if irritation persists.",
+    disposalSpill: "Absorb with inert material. Dispose of contents and container per local regulations. Prevent entry into drains and waterways.",
+    storage: "Cool, dry, well-ventilated place. Keep container tightly closed, away from oxidisers.",
+    fireClass: "Combustible liquid. Use dry chemical, CO2, foam or water fog.",
+  },
+
   "Isopropyl Alcohol (IPA)": {
     hazardous: "Highly flammable liquid and vapors. Causes serious eye irritation. May cause drowsiness or dizziness.",
     precautionary: [
