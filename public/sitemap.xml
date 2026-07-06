@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <!--
+    Laxmi Chemicals is a single-page site: Products, About and Contact are
+    sections (anchors) on the home page, not separate routes — so the home URL
+    is the one canonical, indexable page. The /drum-label, /quotation,
+    /letter-pad and /msds routes are password-gated internal tools and are
+    intentionally left out of the sitemap.
+  -->
+  <url>
+    <loc>https://laxmichemicalmysore.in/</loc>
+    <lastmod>2026-07-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+  </url>
+</urlset>

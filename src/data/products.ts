@@ -11,6 +11,7 @@ export const productCategories: ProductCategory[] = [
       "Hydrogen Peroxide (50%)",
       "Acetone (ACT)",
       "Acetone 99.70%",
+      "Formaldehyde",
       "Tertiary Butanol",
       "Isobutanol",
       "THF",

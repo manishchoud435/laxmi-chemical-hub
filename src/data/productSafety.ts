@@ -28,6 +28,23 @@ const defaultSafety: ProductSafety = {
 };
 
 const safetyData: Record<string, ProductSafety> = {
+  "Formaldehyde": {
+    hazardous: "Toxic if inhaled, swallowed or in contact with skin. Causes severe skin burns and serious eye damage. May cause an allergic skin reaction and asthma/breathing difficulties. Suspected of causing cancer (carcinogen).",
+    precautionary: [
+      "Wear protective gloves, clothing, eye and face protection.",
+      "Do not breathe vapour or mist. Use only with adequate ventilation.",
+      "Keep away from heat, sparks and open flames. No smoking.",
+      "Wash thoroughly after handling; avoid all contact.",
+    ],
+    skinContact: "Immediately remove contaminated clothing. Wash skin with plenty of water for at least 15 minutes. Seek immediate medical attention.",
+    inhalationIngestion: "Inhalation – move to fresh air; give oxygen if breathing is difficult. Seek immediate medical attention.\nIngestion – do NOT induce vomiting. Rinse mouth and drink water. Seek immediate medical attention.",
+    firstAidEye: "Rinse cautiously with water for at least 15 minutes, holding eyelids open. Remove contact lenses if present. Seek immediate medical attention.",
+    disposalSpill: "Ventilate the area. Absorb spill with inert material and collect for disposal as hazardous waste per local regulations. Prevent entry into drains and watercourses.",
+    storage: "Cool (above 15 °C to prevent polymerisation), dry, well-ventilated place. Keep tightly closed, away from oxidisers, acids, alkalis and ignition sources.",
+    fireClass: "Combustible solution. Use alcohol-resistant foam, dry chemical, CO2 or water fog.",
+    pictograms: ["exclamation", "toxic"],
+  },
+
   "Mixed Xylene (MX)": {
     hazardous: "Flammable liquid and vapour. Harmful if inhaled or swallowed. Causes skin irritation. May cause drowsiness, dizziness and headache.",
     precautionary: [

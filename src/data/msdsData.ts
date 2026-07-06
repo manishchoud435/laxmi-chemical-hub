@@ -726,12 +726,182 @@ const ethylAcetate: MsdsData = {
   ],
 };
 
+/* ════════════════════════════ FORMALDEHYDE ════════════════════════════ */
+const formaldehyde: MsdsData = {
+  productName: "Formaldehyde",
+  docRef: "LXM/MSDS/FA-001",
+  sections: [
+    {
+      title: "Identification of the Substance & Company",
+      rows: [
+        { label: "Material Name", value: "Formaldehyde (Formalin solution, ~37%)" },
+        { label: "Uses", value: "Disinfectant, preservative and fixative. Raw material for resins and in the chemical industry." },
+        { label: "Synonyms", value: "Methanal · Formalin · Formic aldehyde · Methylene oxide" },
+      ],
+    },
+    {
+      title: "Composition / Information on Ingredients",
+      rows: [
+        { label: "Material Formal Name", value: "Formaldehyde (aqueous solution)" },
+        { label: "CAS No.", value: "50-00-0" },
+        { label: "INDEX No.", value: "605-001-00-5" },
+        { label: "EINECS No.", value: "200-001-8" },
+        { label: "Molecular Formula", value: "CH₂O" },
+      ],
+      table: {
+        headers: COMPONENT_HEADERS,
+        rows: [
+          ["Formaldehyde", "50-00-0", "200-001-8", "T, C, Carc.", "R23/24/25; R34; R40; R43", "37%"],
+          ["Methanol (stabiliser)", "67-56-1", "200-659-6", "F, T", "R11; R23/25", "≤ 15%"],
+        ],
+      },
+    },
+    {
+      title: "Hazards Identification",
+      rows: [
+        { label: "Health Hazards", value: "Toxic if inhaled, swallowed or in contact with skin. Causes severe skin burns and serious eye damage. May cause an allergic skin reaction, asthma or breathing difficulties. Suspected of causing cancer." },
+        { label: "Carcinogenicity", value: "Classified by IARC as Group 1 (carcinogenic to humans) — nasopharyngeal cancer / leukaemia." },
+        { label: "Safety Hazards", value: "Combustible solution; may release flammable formaldehyde/methanol vapours. Vapour may form explosive mixtures with air." },
+        { label: "Environmental", value: "Toxic to aquatic organisms. Prevent release to the environment." },
+      ],
+    },
+    {
+      title: "First Aid Measures",
+      rows: [
+        { label: "Inhalation", value: "Move to fresh air immediately. Give oxygen if breathing is difficult. Seek immediate medical attention — pulmonary oedema may be delayed." },
+        { label: "Skin Contact", value: "Immediately remove contaminated clothing. Wash skin with plenty of water for at least 15 minutes. Seek immediate medical attention." },
+        { label: "Eye Contact", value: "Rinse cautiously with water for at least 15 minutes, holding the eyelids open. Remove contact lenses if present. Seek immediate medical attention." },
+        { label: "Ingestion", value: "Do NOT induce vomiting. Rinse mouth and drink water. Never give anything by mouth to an unconscious person. Seek immediate medical attention." },
+        { label: "Advice to Physician", value: "Risk of chemical burns, metabolic acidosis (from methanol) and delayed pulmonary oedema. Treat symptomatically." },
+      ],
+    },
+    {
+      title: "Fire-Fighting Measures",
+      rows: [
+        { label: "Extinguishing Media", value: "Alcohol-resistant foam, dry chemical powder, carbon dioxide or water fog." },
+        { label: "Unsuitable Media", value: "Do not use a direct water jet." },
+        { label: "Specific Hazards", value: "Combustible. Thermal decomposition releases carbon monoxide, carbon dioxide and irritating/toxic formaldehyde vapours." },
+        { label: "Protective Equipment", value: "Self-contained breathing apparatus and full chemical-protective clothing. Cool exposed containers with water spray." },
+      ],
+    },
+    {
+      title: "Accidental Release Measures",
+      rows: [
+        { label: "Protective Measures", value: "Isolate the area and deny entry to unprotected personnel. Eliminate ignition sources. Wear full PPE. Ensure adequate ventilation; avoid breathing vapour." },
+        { label: "Clean-Up", value: "Absorb spill with inert material; collect into sealable, labelled containers. Residues may be neutralised (e.g. with dilute ammonia/sodium sulphite) by trained personnel. Prevent entry into drains and watercourses." },
+      ],
+    },
+    {
+      title: "Handling & Storage",
+      rows: [
+        { label: "Handling", value: "Avoid all contact with skin, eyes and clothing. Do not breathe vapour or mist. Use only with local exhaust ventilation. Keep away from heat, sparks and open flames — no smoking. Wash thoroughly after handling." },
+        { label: "Storage", value: "Store in a cool (above 15 °C to prevent polymerisation to paraformaldehyde), dry, well-ventilated place. Keep tightly closed, away from oxidisers, acids, alkalis, amines and ignition sources." },
+        { label: "Suitable Materials", value: "Stainless steel, polyethylene, polypropylene, suitably lined steel." },
+      ],
+    },
+    {
+      title: "Exposure Controls / Personal Protection",
+      table: {
+        headers: OEL_HEADERS,
+        rows: [
+          ["Formaldehyde", "ACGIH", "Ceiling", "0.3", "—"],
+          ["Formaldehyde", "OSHA Z", "TWA", "0.75", "—"],
+          ["Formaldehyde", "OSHA Z", "STEL", "2", "—"],
+        ],
+      },
+      rows: [
+        { label: "Engineering Controls", value: "Use closed systems and local exhaust ventilation to keep airborne levels below the (very low) exposure limits. Provide eye wash and safety shower." },
+        { label: "Respiratory", value: "Full-face respirator with a formaldehyde/organic-vapour cartridge; supplied-air respirator for high concentrations or spills." },
+        { label: "Hand / Eye / Body", value: "Butyl or nitrile gloves, chemical splash goggles and chemical-resistant clothing/apron." },
+      ],
+    },
+    {
+      title: "Physical & Chemical Properties",
+      rows: [
+        { label: "Appearance", value: "Colourless liquid (aqueous solution)" },
+        { label: "Odour", value: "Pungent, characteristic, irritating" },
+        { label: "pH", value: "2.8 – 4.0" },
+        { label: "Boiling Point", value: "≈ 96 – 99 °C" },
+        { label: "Flash Point", value: "≈ 50 – 56 °C (closed cup; lower if methanol-stabilised)" },
+        { label: "Auto-ignition", value: "≈ 424 °C" },
+        { label: "Density", value: "≈ 1080 – 1100 kg/m³ at 20 °C" },
+        { label: "Water Solubility", value: "Miscible" },
+        { label: "Molecular Weight", value: "30.03 g/mol (formaldehyde)" },
+      ],
+    },
+    {
+      title: "Stability & Reactivity",
+      rows: [
+        { label: "Stability", value: "Stable when stored correctly. May polymerise to paraformaldehyde (white deposit) at low temperature; methanol is added as a stabiliser." },
+        { label: "Conditions to Avoid", value: "Heat, freezing, ignition sources and light." },
+        { label: "Materials to Avoid", value: "Strong oxidisers, strong acids and bases, amines, phenols, isocyanates, nitrogen dioxide." },
+        { label: "Decomposition Products", value: "Carbon monoxide, carbon dioxide and formic acid on combustion/decomposition." },
+      ],
+    },
+    {
+      title: "Toxicological Information",
+      rows: [
+        { label: "Acute Oral", value: "Toxic: LD50 ≈ 100 mg/kg (Rat)." },
+        { label: "Skin / Eye", value: "Corrosive — causes severe burns and serious eye damage." },
+        { label: "Inhalation", value: "Toxic. Severely irritates the respiratory tract; may cause pulmonary oedema (onset may be delayed)." },
+        { label: "Sensitisation", value: "May cause skin and respiratory sensitisation (allergic dermatitis, asthma)." },
+        { label: "Carcinogenicity", value: "IARC Group 1 — carcinogenic to humans." },
+      ],
+    },
+    {
+      title: "Ecological Information",
+      rows: [
+        { label: "Aquatic Toxicity", value: "Toxic to aquatic organisms." },
+        { label: "Persistence", value: "Readily biodegradable." },
+        { label: "Bioaccumulation", value: "Does not bioaccumulate significantly." },
+      ],
+    },
+    {
+      title: "Disposal Considerations",
+      rows: [
+        { label: "Material Disposal", value: "Dispose of as hazardous waste via a licensed contractor, in accordance with local regulations. Do not discharge to drains or watercourses." },
+        { label: "Container Disposal", value: "Triple-rinse (or equivalent) empty containers; do not reuse. Send to a licensed recoverer. Do not cut or weld." },
+      ],
+    },
+    {
+      title: "Transport Information",
+      rows: [
+        { label: "UN No.", value: "UN 2209" },
+        { label: "Proper Shipping Name", value: "FORMALDEHYDE SOLUTION (with ≥ 25% formaldehyde)" },
+        { label: "Class / Division", value: "8 (Corrosive)" },
+        { label: "Packing Group", value: "III" },
+        { label: "Note", value: "Methanol-stabilised solutions with flash point < 60 °C ship as UN 1198, Class 3." },
+      ],
+    },
+    {
+      title: "Regulatory Information",
+      rows: [
+        { label: "EC Classification", value: "Toxic (T). Corrosive (C). Carcinogen Cat. 1B. Skin/respiratory sensitiser." },
+        { label: "EC Symbols", value: "T — Toxic" },
+        { label: "Risk Phrases", value: "R23/24/25 · R34 · R40 · R43" },
+        { label: "Safety Phrases", value: "S26 · S36/37/39 · S45 · S51" },
+        { label: "Inventory Listings", value: "AICS, DSL, EINECS (200-001-8), TSCA, ENCS, KECI, PICCS." },
+      ],
+    },
+    {
+      title: "Other Information",
+      rows: [
+        { label: "R23/24/25", value: "Toxic by inhalation, in contact with skin and if swallowed" },
+        { label: "R34", value: "Causes burns" },
+        { label: "R40", value: "Limited evidence of a carcinogenic effect" },
+        { label: "R43", value: "May cause sensitisation by skin contact" },
+      ],
+    },
+  ],
+};
+
 /** All available MSDS sheets, keyed by the product name in products.ts. */
 export const msdsData: Record<string, MsdsData> = {
   "Mixed Xylene (MX)": mixXylene,
   "Isopropyl Alcohol (IPA)": ipa,
   "Acetone (ACT)": acetone,
   "Ethyl Acetate (EA)": ethylAcetate,
+  "Formaldehyde": formaldehyde,
 };
 
 export const msdsProductNames = Object.keys(msdsData);
