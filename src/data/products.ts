@@ -56,6 +56,7 @@ export const productCategories: ProductCategory[] = [
       "Zinc Stearate",
       "Toluene (TOL)",
       "Toluene 99.80%",
+      "Cyclohexanone",
       "Silicon Emulsion",
       "MIBK",
     ],

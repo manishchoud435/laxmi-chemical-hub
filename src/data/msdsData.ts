@@ -895,6 +895,379 @@ const formaldehyde: MsdsData = {
   ],
 };
 
+/* ══════════════════════ METHYL ETHYL KETONE (MEK) ══════════════════════ */
+const mek: MsdsData = {
+  productName: "Methyl Ethyl Ketone (MEK)",
+  docRef: "LXM/MSDS/MEK-001",
+  sections: [
+    {
+      title: "Identification of the Substance & Company",
+      rows: [
+        { label: "Material Name", value: "Methyl Ethyl Ketone (MEK)" },
+        { label: "Uses", value: "Industrial solvent. No restrictions." },
+        { label: "Product Family", value: "Ketone" },
+        { label: "Synonyms", value: "2-Butanone · Ethyl methyl ketone · MEK" },
+      ],
+    },
+    {
+      title: "Composition / Information on Ingredients",
+      rows: [
+        { label: "Material Formal Name", value: "Butan-2-one (2-butanone)" },
+        { label: "CAS No.", value: "78-93-3" },
+        { label: "EINECS No.", value: "201-159-0" },
+        { label: "Molecular Formula", value: "C₄H₈O" },
+      ],
+      table: {
+        headers: COMPONENT_HEADERS,
+        rows: [
+          ["Methyl Ethyl Ketone (2-butanone)", "78-93-3", "201-159-0", "F, Xi", "R11; R36; R66; R67", "60–100%"],
+        ],
+      },
+    },
+    {
+      title: "Hazards Identification",
+      rows: [
+        { label: "Signal Word", value: "DANGER" },
+        { label: "Classification", value: "Flammable Liquid Cat. 2 · Specific Target Organ Toxicity (single exposure) Cat. 3 · Eye Damage/Irritation Cat. 2A." },
+        { label: "Hazard Statement", value: "Highly flammable liquid and vapour. May cause respiratory irritation; may cause drowsiness or dizziness. Causes serious eye irritation." },
+        { label: "Other Hazards", value: "None known." },
+      ],
+    },
+    {
+      title: "First Aid Measures",
+      rows: [
+        { label: "Eye Contact", value: "Flush eyes with water for 15 minutes. Seek medical attention." },
+        { label: "Skin Contact", value: "Flush area with water. If irritation persists, seek medical attention. Launder clothing before reuse." },
+        { label: "Inhalation", value: "Remove victim to fresh air. If there is difficulty breathing, seek immediate medical attention." },
+        { label: "Ingestion", value: "Rinse mouth with water; give plenty of water to drink. Do NOT induce vomiting. Immediately call a poison centre or doctor." },
+        { label: "Symptoms", value: "Irritation of the nasal mucous membranes, nausea, headache. High concentrations: respiratory-tract irritation, CNS depression, dizziness, narcosis." },
+      ],
+    },
+    {
+      title: "Fire-Fighting Measures",
+      rows: [
+        { label: "Extinguishing Media", value: "Dry chemical, carbon dioxide (CO₂), alcohol foam." },
+        { label: "Unsuitable Media", value: "Do not use a heavy water stream." },
+        { label: "Specific Hazards", value: "Highly flammable. Vapour/air mixtures are explosive within the flammable limits and may be ignited by sparks (flash-back). On heating or prolonged storage, peroxidation increases fire/explosion risk. Combustion produces carbon monoxide and carbon dioxide. Reacts violently with strong oxidisers." },
+        { label: "Protective Equipment", value: "Fire-fighters should wear self-contained breathing apparatus and full protective clothing. Use water spray to cool exposed containers and structures." },
+      ],
+    },
+    {
+      title: "Accidental Release Measures",
+      rows: [
+        { label: "Personal Precautions", value: "Wear chemical-resistant gloves (neoprene), rubber coveralls and boots. Remove/extinguish all ignition sources and naked flames." },
+        { label: "Environmental", value: "Do not allow material to enter sewers or surface watercourses. Vapours are heavier than air and may collect in low-lying areas (sumps, basements)." },
+        { label: "Clean-Up", value: "Pump up or soak up the spilled material and place in a suitable container for disposal. Allow residues to evaporate and disperse." },
+      ],
+    },
+    {
+      title: "Handling & Storage",
+      rows: [
+        { label: "Handling", value: "Handle with care — flammable liquid. Ground all containers when in use. Use spark-resistant equipment. Anti-static clothing (Nomex or similar) is recommended." },
+        { label: "Storage", value: "Store in a cool, dry, well-ventilated place, locked up. Remove all sources of ignition and naked flames. Keep out of direct sunlight and keep the container tightly closed." },
+      ],
+    },
+    {
+      title: "Exposure Controls / Personal Protection",
+      table: {
+        headers: OEL_HEADERS,
+        rows: [
+          ["Methyl Ethyl Ketone", "ACGIH", "TWA (8 h)", "200", "—"],
+          ["Methyl Ethyl Ketone", "ACGIH", "STEL (15 min)", "300", "—"],
+          ["Methyl Ethyl Ketone", "—", "IDLH", "3000", "—"],
+        ],
+      },
+      rows: [
+        { label: "Engineering Controls", value: "Ensure adequate ventilation, especially in confined areas; use local exhaust ventilation and explosion-proof electrical/ventilation/lighting equipment. Provide eyewash stations and safety showers nearby." },
+        { label: "Eye / Face", value: "Safety glasses." },
+        { label: "Skin", value: "Chemical-resistant coveralls and gloves." },
+        { label: "Respiratory", value: "Air-purifying respirator fitted with organic-vapour cartridges if exposure limits are exceeded." },
+      ],
+    },
+    {
+      title: "Physical & Chemical Properties",
+      rows: [
+        { label: "Appearance", value: "Clear, colourless liquid" },
+        { label: "Odour", value: "Strong, sweet ketone odour" },
+        { label: "pH", value: "Not applicable" },
+        { label: "Flash Point", value: "−9 °C" },
+        { label: "Boiling Range", value: "79 – 80.5 °C" },
+        { label: "Freezing Point", value: "−94.8 °C" },
+        { label: "Evaporation Rate", value: "2.7 (ether = 1)" },
+        { label: "Flammability Limits", value: "LEL 1.8% / UEL 11.5% (V)" },
+        { label: "Vapour Pressure", value: "10.33 kPa at 20 °C" },
+        { label: "Vapour Density", value: "2.41 (air = 1)" },
+        { label: "Relative Density", value: "0.804 – 0.806" },
+        { label: "Solubility in Water", value: "Miscible" },
+        { label: "Auto-ignition", value: "404 – 515 °C" },
+        { label: "Molecular Weight", value: "72.11 g/mol" },
+      ],
+    },
+    {
+      title: "Stability & Reactivity",
+      rows: [
+        { label: "Chemical Stability", value: "Stable under normal conditions." },
+        { label: "Reactivity", value: "On heating, peroxidation increases fire/explosion risk. Reacts violently with strong oxidisers." },
+        { label: "Conditions to Avoid", value: "Naked flames, sparks, ignition sources and elevated temperatures." },
+        { label: "Incompatible Materials", value: "Oxidising agents, strong alkalis and bases, reducing agents, amines, ammonia, aldehydes, halogens and hydrogen peroxide." },
+        { label: "Decomposition Products", value: "Peroxides; carbon monoxide and carbon dioxide on combustion." },
+      ],
+    },
+    {
+      title: "Toxicological Information",
+      rows: [
+        { label: "Acute Oral", value: "LD50 2.6 g/kg (Rat)." },
+        { label: "Acute Dermal", value: "LD50 6.4 g/kg (Rabbit)." },
+        { label: "Acute Inhalation", value: "LC50 11,300 ppm (Rat, 4 h)." },
+        { label: "Skin / Eye", value: "Moderate skin irritation (defatting/dermatitis on repeated contact). Eyes: burning, redness, swelling, blurred vision." },
+        { label: "Inhalation", value: "Irritation of nose/throat; high concentrations cause CNS depression — headache, dizziness, nausea." },
+        { label: "STOT (single)", value: "May cause drowsiness or dizziness." },
+        { label: "Carcinogenicity", value: "Not listed." },
+        { label: "Reproductive", value: "Animal studies showed foetotoxicity (skeletal anomalies) at maternally-toxic doses." },
+      ],
+    },
+    {
+      title: "Ecological Information",
+      rows: [
+        { label: "Ecotoxicity", value: "LC50 3130 – 3320 mg/L, flow-through (Pimephales promelas)." },
+        { label: "Biodegradability", value: "Readily biodegradable." },
+        { label: "Bioaccumulation", value: "Not expected to bioaccumulate; photodegradation occurs." },
+      ],
+    },
+    {
+      title: "Disposal Considerations",
+      rows: [
+        { label: "Material Disposal", value: "Dispose of contents/containers in accordance with local regulations." },
+        { label: "Container Disposal", value: "Empty containers retain flammable vapour. Do not cut, weld or grind. Send to a licensed recoverer." },
+      ],
+    },
+    {
+      title: "Transport Information",
+      rows: [
+        { label: "UN No.", value: "UN 1193" },
+        { label: "Proper Shipping Name", value: "METHYL ETHYL KETONE" },
+        { label: "Class / Division", value: "3 (Flammable liquid)" },
+        { label: "Packing Group", value: "II" },
+        { label: "Environmental Hazards", value: "Not applicable" },
+      ],
+    },
+    {
+      title: "Regulatory Information",
+      rows: [
+        { label: "EC Classification", value: "Highly flammable. Irritant." },
+        { label: "EC Symbols", value: "F — Highly flammable · Xi — Irritant" },
+        { label: "Risk Phrases", value: "R11 · R36 · R66 · R67" },
+        { label: "Inventory Listings", value: "Listed on / exempt under DSL/NDSL (Canada), TSCA, EINECS (201-159-0)." },
+      ],
+    },
+    {
+      title: "Other Information",
+      rows: [
+        { label: "NFPA Rating", value: "Health 2 · Flammability 3 · Reactivity 0" },
+        { label: "HMIS Rating", value: "Health 2 · Flammability 3 · Reactivity 0" },
+        { label: "R11", value: "Highly flammable" },
+        { label: "R36", value: "Irritating to eyes" },
+        { label: "R66", value: "Repeated exposure may cause skin dryness or cracking" },
+        { label: "R67", value: "Vapours may cause drowsiness and dizziness" },
+      ],
+    },
+  ],
+};
+
+/* ════════════════════════════ CYCLOHEXANONE ════════════════════════════ */
+const cyclohexanone: MsdsData = {
+  productName: "Cyclohexanone",
+  docRef: "LXM/MSDS/CYH-001",
+  sections: [
+    {
+      title: "Identification of the Substance & Company",
+      rows: [
+        { label: "Material Name", value: "Cyclohexanone" },
+        { label: "Uses", value: "Solvent for resins, lacquers, coatings and adhesives. Raw material for caprolactam / adipic acid (nylon) manufacture." },
+        { label: "Product Family", value: "Cyclic ketone" },
+        { label: "Synonyms", value: "Cyclohexyl ketone · Pimelic ketone · Ketohexamethylene · Oxocyclohexane" },
+      ],
+    },
+    {
+      title: "Composition / Information on Ingredients",
+      rows: [
+        { label: "Material Formal Name", value: "Cyclohexanone" },
+        { label: "CAS No.", value: "108-94-1" },
+        { label: "INDEX No.", value: "606-010-00-7" },
+        { label: "EINECS No.", value: "203-631-1" },
+        { label: "Molecular Formula", value: "C₆H₁₀O" },
+      ],
+      table: {
+        headers: COMPONENT_HEADERS,
+        rows: [
+          ["Cyclohexanone", "108-94-1", "203-631-1", "Xn", "R10; R20", "> 99%"],
+        ],
+      },
+    },
+    {
+      title: "Hazards Identification",
+      rows: [
+        { label: "Signal Word", value: "WARNING" },
+        { label: "Classification", value: "Flammable Liquid Cat. 3 · Acute Toxicity (inhalation) Cat. 4 · Skin Irritation Cat. 2 · Eye Irritation Cat. 2A · STOT (single exposure) Cat. 3." },
+        { label: "Hazard Statement", value: "Flammable liquid and vapour. Harmful if inhaled. Causes skin irritation. Causes serious eye irritation. May cause respiratory irritation." },
+        { label: "Health Hazards", value: "Vapour irritates the eyes, nose and throat. Liquid contact defats the skin and may cause dermatitis on repeated exposure. High vapour concentrations cause headache, dizziness, nausea and CNS depression. Target organs: eyes, skin, respiratory tract, CNS." },
+        { label: "Safety Hazards", value: "Flammable above the flash point of 44 °C. Vapour is heavier than air, may travel to a distant ignition source and flash back." },
+        { label: "Environmental", value: "Harmful to aquatic organisms. Prevent large releases entering watercourses." },
+        { label: "NFPA / HMIS", value: "Health 2 · Flammability 2 · Reactivity 0" },
+      ],
+    },
+    {
+      title: "First Aid Measures",
+      rows: [
+        { label: "Inhalation", value: "Remove to fresh air. Give oxygen if breathing is difficult; if breathing has stopped, assist ventilation. Seek medical attention if symptoms persist." },
+        { label: "Skin Contact", value: "Remove contaminated clothing. Wash skin with plenty of soap and water for at least 15 minutes. Launder clothing before reuse. Seek medical advice if irritation persists." },
+        { label: "Eye Contact", value: "Rinse cautiously with water for at least 15 minutes, holding the eyelids open. Remove contact lenses if present and easy to do. Seek medical attention." },
+        { label: "Ingestion", value: "Do NOT induce vomiting — risk of aspiration. Rinse mouth. Never give anything by mouth to an unconscious person. Seek immediate medical attention." },
+        { label: "Advice to Physician", value: "Treat symptomatically. Aspiration may cause chemical pneumonitis. Monitor for CNS depression and respiratory irritation." },
+      ],
+    },
+    {
+      title: "Fire-Fighting Measures",
+      rows: [
+        { label: "Extinguishing Media", value: "Alcohol-resistant foam, dry chemical powder, carbon dioxide or water fog." },
+        { label: "Unsuitable Media", value: "Do not use a direct water jet — it will spread the fire." },
+        { label: "Specific Hazards", value: "Combustible liquid. Vapour is heavier than air (≈ 3.4 × air) and collects in pits and confined spaces. Containers may rupture on heating. Combustion evolves carbon monoxide and carbon dioxide." },
+        { label: "Protective Equipment", value: "Self-contained breathing apparatus and full protective clothing. Cool exposed containers with water spray from a protected position." },
+      ],
+    },
+    {
+      title: "Accidental Release Measures",
+      rows: [
+        { label: "Protective Measures", value: "Eliminate all ignition sources. Ventilate the area; avoid breathing vapour. Wear full PPE. Bond and ground equipment. Vapour may accumulate in low-lying areas." },
+        { label: "Clean-Up", value: "Absorb with inert material (sand, vermiculite, earth) and transfer to a labelled, sealable container. Recover large spills by pumping to a salvage tank. Allow residues to evaporate in a ventilated area." },
+        { label: "Environmental", value: "Prevent entry into drains, sewers and watercourses. Notify authorities if a release reaches the environment." },
+      ],
+    },
+    {
+      title: "Handling & Storage",
+      rows: [
+        { label: "Handling", value: "Avoid inhaling vapour and contact with skin and eyes. Keep away from heat, sparks and open flames — no smoking. Use only with adequate ventilation. Bond and ground all transfer equipment. Wash thoroughly after handling." },
+        { label: "Storage", value: "Store in a cool, dry, well-ventilated place away from ignition sources, direct sunlight, oxidisers and strong acids/bases. Keep container tightly closed and upright. Temperature: ambient." },
+        { label: "Suitable Materials", value: "Mild steel, stainless steel, PTFE." },
+        { label: "Unsuitable Materials", value: "Natural rubber, EPDM, polystyrene, PVC and many plastics — cyclohexanone is an aggressive solvent for them." },
+        { label: "Container Advice", value: "Emptied containers retain flammable vapour and residue. Do not cut, drill, grind or weld." },
+      ],
+    },
+    {
+      title: "Exposure Controls / Personal Protection",
+      table: {
+        headers: OEL_HEADERS,
+        rows: [
+          ["Cyclohexanone", "ACGIH", "TWA (8 h)", "20", "—"],
+          ["Cyclohexanone", "OSHA Z1", "TWA", "50", "200"],
+          ["Cyclohexanone", "NIOSH", "REL TWA", "25", "100"],
+          ["Cyclohexanone", "—", "IDLH", "700", "—"],
+        ],
+      },
+      rows: [
+        { label: "Engineering Controls", value: "Local exhaust ventilation to keep vapour below the exposure limits. Explosion-proof equipment. Provide eye wash and safety shower." },
+        { label: "Respiratory", value: "Where ventilation is inadequate, use a respirator with an organic-vapour cartridge. For high concentrations or confined spaces, use a positive-pressure supplied-air respirator." },
+        { label: "Hand Protection", value: "Butyl rubber or Viton gloves to EN374. Nitrile and natural rubber are permeated rapidly — do not rely on them." },
+        { label: "Eye Protection", value: "Chemical splash goggles to EN166." },
+        { label: "Skin & Body", value: "Chemical-resistant apron, boots and overalls where splashing is possible." },
+      ],
+    },
+    {
+      title: "Physical & Chemical Properties",
+      rows: [
+        { label: "Appearance", value: "Clear, colourless to pale yellow liquid" },
+        { label: "Odour", value: "Characteristic — peppermint / acetone-like" },
+        { label: "Boiling Point", value: "155 – 156 °C" },
+        { label: "Melting Point", value: "−16 °C" },
+        { label: "Flash Point", value: "44 °C (closed cup)" },
+        { label: "Flammability Limits", value: "1.1 – 9.4 %(V) in air" },
+        { label: "Auto-ignition", value: "420 °C" },
+        { label: "Vapour Pressure", value: "≈ 0.6 kPa (4.5 mmHg) at 20 °C" },
+        { label: "Vapour Density", value: "3.4 (air = 1)" },
+        { label: "Density", value: "≈ 947 kg/m³ at 20 °C" },
+        { label: "Water Solubility", value: "Slight — ≈ 8.6 g / 100 ml at 20 °C" },
+        { label: "Viscosity", value: "2.2 mPa·s at 25 °C" },
+        { label: "Molecular Weight", value: "98.14 g/mol" },
+      ],
+    },
+    {
+      title: "Stability & Reactivity",
+      rows: [
+        { label: "Stability", value: "Stable under normal conditions of use. May form peroxides on prolonged exposure to air and light." },
+        { label: "Conditions to Avoid", value: "Heat, sparks, open flames, ignition sources and direct sunlight." },
+        { label: "Materials to Avoid", value: "Strong oxidising agents (nitric acid, hydrogen peroxide, perchlorates), strong acids and bases, reducing agents, amines and aldehydes." },
+        { label: "Decomposition Products", value: "Carbon monoxide and carbon dioxide on combustion." },
+        { label: "Hazardous Polymerisation", value: "Will not occur." },
+      ],
+    },
+    {
+      title: "Toxicological Information",
+      rows: [
+        { label: "Acute Oral", value: "Low toxicity: LD50 ≈ 1535 mg/kg (Rat)." },
+        { label: "Acute Dermal", value: "LD50 ≈ 948 mg/kg (Rabbit)." },
+        { label: "Acute Inhalation", value: "LC50 ≈ 8000 ppm / 4 h (Rat). Harmful if inhaled." },
+        { label: "Skin / Eye", value: "Causes skin irritation; defats the skin on repeated contact. Causes serious eye irritation." },
+        { label: "Inhalation", value: "Irritates the nose and throat; high concentrations cause headache, dizziness, nausea and CNS depression." },
+        { label: "Sensitisation", value: "Not expected to be a skin sensitiser." },
+        { label: "Carcinogenicity", value: "IARC Group 3 — not classifiable as to carcinogenicity in humans. Not listed by NTP or OSHA." },
+        { label: "Reproductive", value: "No significant effects reported at non-maternally-toxic doses." },
+      ],
+    },
+    {
+      title: "Ecological Information",
+      rows: [
+        { label: "Aquatic Toxicity", value: "Harmful — LC50 ≈ 527 mg/L / 96 h (Pimephales promelas)." },
+        { label: "Mobility", value: "Mobile in soil owing to moderate water solubility; may reach groundwater." },
+        { label: "Persistence", value: "Readily biodegradable." },
+        { label: "Bioaccumulation", value: "Does not bioaccumulate significantly (log Pow ≈ 0.81)." },
+      ],
+    },
+    {
+      title: "Disposal Considerations",
+      rows: [
+        { label: "Material Disposal", value: "Recover or recycle if possible. Otherwise dispose of as flammable hazardous waste by high-temperature incineration via a licensed contractor. Do not discharge to drains or watercourses." },
+        { label: "Container Disposal", value: "Empty containers retain flammable vapour and residue. Do not cut, weld or grind. Send to an approved drum recoverer." },
+        { label: "Local Legislation", value: "Dispose in accordance with applicable regional, national and local laws." },
+      ],
+    },
+    {
+      title: "Transport Information",
+      rows: [
+        { label: "UN No.", value: "UN 1915" },
+        { label: "Proper Shipping Name", value: "CYCLOHEXANONE" },
+        { label: "Class / Division", value: "3 (Flammable liquid)" },
+        { label: "Packing Group", value: "III" },
+        { label: "Labels", value: "3" },
+        { label: "Marine Pollutant", value: "No" },
+        { label: "Transport Document", value: "UN1915, CYCLOHEXANONE, 3, PG III" },
+      ],
+    },
+    {
+      title: "Regulatory Information",
+      rows: [
+        { label: "EC Classification", value: "Flammable. Harmful." },
+        { label: "EC Symbols", value: "Xn — Harmful" },
+        { label: "Risk Phrases", value: "R10 · R20" },
+        { label: "Safety Phrases", value: "S25 Avoid contact with eyes" },
+        { label: "Controlled Substance", value: "Listed as a DEA List II regulated chemical in the USA — records, reporting and customer due-diligence apply to bulk sales. Check the equivalent precursor-control requirements in the destination country." },
+        { label: "Inventory Listings", value: "AICS, DSL, EINECS (203-631-1), TSCA, ENCS, KECI, PICCS." },
+      ],
+    },
+    {
+      title: "Other Information",
+      rows: [
+        { label: "R10", value: "Flammable" },
+        { label: "R20", value: "Harmful by inhalation" },
+        { label: "H226", value: "Flammable liquid and vapour" },
+        { label: "H332", value: "Harmful if inhaled" },
+        { label: "H315", value: "Causes skin irritation" },
+        { label: "H319", value: "Causes serious eye irritation" },
+        { label: "H335", value: "May cause respiratory irritation" },
+      ],
+    },
+  ],
+};
+
 /** All available MSDS sheets, keyed by the product name in products.ts. */
 export const msdsData: Record<string, MsdsData> = {
   "Mixed Xylene (MX)": mixXylene,
@@ -902,6 +1275,8 @@ export const msdsData: Record<string, MsdsData> = {
   "Acetone (ACT)": acetone,
   "Ethyl Acetate (EA)": ethylAcetate,
   "Formaldehyde": formaldehyde,
+  "Methyl Ethyl Ketone (MEK)": mek,
+  "Cyclohexanone": cyclohexanone,
 };
 
 export const msdsProductNames = Object.keys(msdsData);

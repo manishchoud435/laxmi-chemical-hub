@@ -432,6 +432,23 @@ const safetyData: Record<string, ProductSafety> = {
     fireClass: "Class IB flammable liquid (UN 1274)",
   },
 
+  "Cyclohexanone": {
+    hazardous: "Flammable liquid and vapor. Harmful if inhaled. Causes skin irritation. Causes serious eye irritation. May cause respiratory irritation.",
+    precautionary: [
+      "Keep away from heat, sparks, open flames and hot surfaces.",
+      "Keep container tightly closed.",
+      "Avoid breathing vapors. Use only in well-ventilated area.",
+      "Wear protective gloves (butyl rubber or Viton) and eye protection.",
+      "Ground / bond container and receiving equipment.",
+    ],
+    skinContact: "Remove contaminated clothing. Wash skin with plenty of soap and water for at least 15 minutes. Launder clothing before reuse. Seek medical advice if irritation persists.",
+    inhalationIngestion: "Inhalation – move to fresh air. Give oxygen if breathing is difficult. Seek medical attention if symptoms persist.\nIngestion – rinse mouth. Do NOT induce vomiting (aspiration risk). Seek medical attention.",
+    firstAidEye: "Rinse cautiously with water for at least 15 minutes, holding eyelids open. Remove contact lenses if present. Seek medical attention.",
+    disposalSpill: "Eliminate ignition sources. Absorb with inert material (sand or vermiculite). Ventilate the area. Prevent entry into drains. Dispose per local regulations.",
+    storage: "Cool, dry, ventilated. Away from ignition sources, direct sunlight, oxidizers and strong acids/bases.",
+    fireClass: "Class IC flammable liquid (UN 1915) – flash point 44 °C. Use alcohol-resistant foam, dry chemical or CO2.",
+  },
+
   "Isobutanol": {
     hazardous: "Flammable liquid and vapor. Causes serious eye damage. Causes skin irritation. May cause drowsiness or dizziness.",
     precautionary: [
