@@ -1,5 +1,4 @@
 import { COMPANY } from "@/data/company";
-import type { ShareChannel } from "@/lib/shareDocument";
 
 /** ₹1,23,456.00 — Indian digit grouping. */
 export const inr = (value: number) =>
@@ -81,14 +80,12 @@ function lineItems(items: QuotationMessageItem[]): string[] {
 }
 
 /**
- * Covering note that accompanies the shared PDF: a formal business letter for
- * email, and a tighter (but still official) note for WhatsApp. Both are built
- * from the live form values, so the message always matches the attachment.
+ * Formal covering note that accompanies the shared PDF. WhatsApp and email get
+ * the identical letter, so the customer reads the same official wording on
+ * whichever channel it arrives. Built from the live form values, so the message
+ * always matches the attachment.
  */
-export function quotationShareMessage(
-  channel: ShareChannel,
-  input: QuotationMessageInput
-): string {
+export function quotationShareMessage(input: QuotationMessageInput): string {
   const label = docLabelOf(input.isProforma);
   const docNo = clean(input.docNo);
   const dated = formatDocDate(input.docDate);
@@ -109,32 +106,6 @@ export function quotationShareMessage(
   // Rates are often left blank on an enquiry-stage draft — quoting ₹0.00 back
   // to a customer looks broken, so the value block is dropped entirely.
   const isPriced = input.totals.grandTotal > 0;
-
-  if (channel === "whatsapp") {
-    const compactTerms = [
-      paymentTerms && `Payment: ${paymentTerms}`,
-      validity && `Validity: ${validity}`,
-    ].filter(Boolean) as string[];
-
-    return [
-      `*${COMPANY.name}*`,
-      COMPANY.tagline,
-      "",
-      `Dear ${greeting},`,
-      "",
-      `Please find attached our ${reference} for your kind consideration.`,
-      ...(items.length ? ["", ...items] : []),
-      "",
-      ...(isPriced ? [`Total (incl. GST): *${inr(input.totals.grandTotal)}*`] : []),
-      ...(compactTerms.length ? [compactTerms.join("  |  ")] : []),
-      "",
-      "Kindly let us know if you need any clarification or a revision. We look forward to your valued order.",
-      "",
-      "Regards,",
-      COMPANY.name,
-      COMPANY.phone,
-    ].join("\n");
-  }
 
   const terms = [
     paymentTerms && `Payment terms  : ${paymentTerms}`,
