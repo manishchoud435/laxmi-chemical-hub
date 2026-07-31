@@ -81,9 +81,14 @@ function lineItems(items: QuotationMessageItem[]): string[] {
 }
 
 /**
- * Covering note that accompanies the shared PDF: a formal business letter for
- * email, and a tighter (but still official) note for WhatsApp. Both are built
- * from the live form values, so the message always matches the attachment.
+ * Formal covering note that accompanies the shared PDF. Both channels get the
+ * same official wording; the only difference is the sign-off. Email leaves it
+ * out because the mail client already appends the company signature, and
+ * repeating it would print the address and GSTIN twice. WhatsApp has no
+ * signature, so it carries one.
+ *
+ * Built from the live form values, so the message always matches the
+ * attachment.
  */
 export function quotationShareMessage(
   channel: ShareChannel,
@@ -109,32 +114,6 @@ export function quotationShareMessage(
   // Rates are often left blank on an enquiry-stage draft — quoting ₹0.00 back
   // to a customer looks broken, so the value block is dropped entirely.
   const isPriced = input.totals.grandTotal > 0;
-
-  if (channel === "whatsapp") {
-    const compactTerms = [
-      paymentTerms && `Payment: ${paymentTerms}`,
-      validity && `Validity: ${validity}`,
-    ].filter(Boolean) as string[];
-
-    return [
-      `*${COMPANY.name}*`,
-      COMPANY.tagline,
-      "",
-      `Dear ${greeting},`,
-      "",
-      `Please find attached our ${reference} for your kind consideration.`,
-      ...(items.length ? ["", ...items] : []),
-      "",
-      ...(isPriced ? [`Total (incl. GST): *${inr(input.totals.grandTotal)}*`] : []),
-      ...(compactTerms.length ? [compactTerms.join("  |  ")] : []),
-      "",
-      "Kindly let us know if you need any clarification or a revision. We look forward to your valued order.",
-      "",
-      "Regards,",
-      COMPANY.name,
-      COMPANY.phone,
-    ].join("\n");
-  }
 
   const terms = [
     paymentTerms && `Payment terms  : ${paymentTerms}`,
@@ -164,13 +143,14 @@ export function quotationShareMessage(
     "We trust the above is in line with your requirement. Should you need any clarification or a revision, kindly let us know.",
     "",
     "We look forward to your valued order.",
-    "",
-    "Thanks & regards,",
-    ...(signer ? [signer] : []),
-    COMPANY.name,
-    COMPANY.address,
-    `Phone : ${COMPANY.phone}`,
-    `Email : ${COMPANY.email}`,
-    `GSTIN : ${COMPANY.gst}`,
+    ...(channel === "whatsapp"
+      ? [
+          "",
+          "Thanks & regards,",
+          ...(signer ? [signer] : []),
+          COMPANY.name,
+          COMPANY.phone,
+        ]
+      : []),
   ].join("\n");
 }
