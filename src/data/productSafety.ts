@@ -28,6 +28,23 @@ const defaultSafety: ProductSafety = {
 };
 
 const safetyData: Record<string, ProductSafety> = {
+  "Formaldehyde": {
+    hazardous: "Toxic if inhaled, swallowed or in contact with skin. Causes severe skin burns and serious eye damage. May cause an allergic skin reaction and asthma/breathing difficulties. Suspected of causing cancer (carcinogen).",
+    precautionary: [
+      "Wear protective gloves, clothing, eye and face protection.",
+      "Do not breathe vapour or mist. Use only with adequate ventilation.",
+      "Keep away from heat, sparks and open flames. No smoking.",
+      "Wash thoroughly after handling; avoid all contact.",
+    ],
+    skinContact: "Immediately remove contaminated clothing. Wash skin with plenty of water for at least 15 minutes. Seek immediate medical attention.",
+    inhalationIngestion: "Inhalation – move to fresh air; give oxygen if breathing is difficult. Seek immediate medical attention.\nIngestion – do NOT induce vomiting. Rinse mouth and drink water. Seek immediate medical attention.",
+    firstAidEye: "Rinse cautiously with water for at least 15 minutes, holding eyelids open. Remove contact lenses if present. Seek immediate medical attention.",
+    disposalSpill: "Ventilate the area. Absorb spill with inert material and collect for disposal as hazardous waste per local regulations. Prevent entry into drains and watercourses.",
+    storage: "Cool (above 15 °C to prevent polymerisation), dry, well-ventilated place. Keep tightly closed, away from oxidisers, acids, alkalis and ignition sources.",
+    fireClass: "Combustible solution. Use alcohol-resistant foam, dry chemical, CO2 or water fog.",
+    pictograms: ["exclamation", "toxic"],
+  },
+
   "Mixed Xylene (MX)": {
     hazardous: "Flammable liquid and vapour. Harmful if inhaled or swallowed. Causes skin irritation. May cause drowsiness, dizziness and headache.",
     precautionary: [
@@ -413,6 +430,23 @@ const safetyData: Record<string, ProductSafety> = {
     disposalSpill: "Eliminate ignition sources. Absorb with inert material. Ventilate. Dispose per local regulations.",
     storage: "Cool, dry, ventilated. Away from ignition.",
     fireClass: "Class IB flammable liquid (UN 1274)",
+  },
+
+  "Cyclohexanone": {
+    hazardous: "Flammable liquid and vapor. Harmful if inhaled. Causes skin irritation. Causes serious eye irritation. May cause respiratory irritation.",
+    precautionary: [
+      "Keep away from heat, sparks, open flames and hot surfaces.",
+      "Keep container tightly closed.",
+      "Avoid breathing vapors. Use only in well-ventilated area.",
+      "Wear protective gloves (butyl rubber or Viton) and eye protection.",
+      "Ground / bond container and receiving equipment.",
+    ],
+    skinContact: "Remove contaminated clothing. Wash skin with plenty of soap and water for at least 15 minutes. Launder clothing before reuse. Seek medical advice if irritation persists.",
+    inhalationIngestion: "Inhalation – move to fresh air. Give oxygen if breathing is difficult. Seek medical attention if symptoms persist.\nIngestion – rinse mouth. Do NOT induce vomiting (aspiration risk). Seek medical attention.",
+    firstAidEye: "Rinse cautiously with water for at least 15 minutes, holding eyelids open. Remove contact lenses if present. Seek medical attention.",
+    disposalSpill: "Eliminate ignition sources. Absorb with inert material (sand or vermiculite). Ventilate the area. Prevent entry into drains. Dispose per local regulations.",
+    storage: "Cool, dry, ventilated. Away from ignition sources, direct sunlight, oxidizers and strong acids/bases.",
+    fireClass: "Class IC flammable liquid (UN 1915) – flash point 44 °C. Use alcohol-resistant foam, dry chemical or CO2.",
   },
 
   "Isobutanol": {

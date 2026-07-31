@@ -182,6 +182,31 @@ export const QuotationPreview = ({
   const totalGst   = products.reduce((s, i) => s + Number(i.quantity || 0) * Number(i.rate || 0) * (Number(i.gst || 0) / 100), 0);
   const grandTotal = subtotal + totalGst;
 
+  // City / State / Pincode are often already typed into the address field (some
+  // buyer records even hold the whole address in the City field). Compare with
+  // punctuation and spacing stripped, so a part already present in the address —
+  // regardless of commas/spacing — isn't printed a second time.
+  const normalize = (s: string) => (s || "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+  const extraLocation = (address: string) => {
+    const base = normalize(address);
+    return [city, state, pincode]
+      .filter((part) => {
+        const p = normalize(String(part || ""));
+        return p && !base.includes(p);
+      })
+      .join(", ");
+  };
+  // Drop repeated consecutive comma segments within an address (e.g. a buyer
+  // record saved as "… Kerala 678103, Kerala 678103").
+  const cleanAddress = (address: string) => {
+    const parts = (address || "").split(",").map((s) => s.trim()).filter(Boolean);
+    const out: string[] = [];
+    for (const part of parts) {
+      if (!out.length || normalize(out[out.length - 1]) !== normalize(part)) out.push(part);
+    }
+    return out.join(", ");
+  };
+
   return (
     <article
       className="quotation-preview w-full overflow-hidden bg-white text-slate-900 print:shadow-none"
@@ -242,9 +267,9 @@ export const QuotationPreview = ({
             <InfoRow label="Mobile"  value={mobile} />
             <InfoRow label="Email"   value={email} />
             <InfoRow label="GSTIN"   value={gstNumber} />
-            {billingAddress && <p className="text-sm text-slate-600">{billingAddress}</p>}
-            {(city || state || pincode) && (
-              <p className="text-sm text-slate-600">{[city, state, pincode].filter(Boolean).join(", ")}</p>
+            {billingAddress && <p className="text-sm text-slate-600">{cleanAddress(billingAddress)}</p>}
+            {extraLocation(billingAddress) && (
+              <p className="text-sm text-slate-600">{extraLocation(billingAddress)}</p>
             )}
           </div>
         </div>
@@ -252,9 +277,9 @@ export const QuotationPreview = ({
           <p className="mb-2 text-[9px] font-bold uppercase tracking-[0.25em] text-slate-400">Ship To</p>
           <p className="text-sm font-bold text-slate-900">{buyerName || "—"}</p>
           <div className="mt-1 space-y-0.5">
-            <p className="text-sm text-slate-600">{shippingAddress || billingAddress || "Same as billing address"}</p>
-            {(city || state || pincode) && (
-              <p className="text-sm text-slate-600">{[city, state, pincode].filter(Boolean).join(", ")}</p>
+            <p className="text-sm text-slate-600">{cleanAddress(shippingAddress || billingAddress) || "Same as billing address"}</p>
+            {extraLocation(shippingAddress || billingAddress) && (
+              <p className="text-sm text-slate-600">{extraLocation(shippingAddress || billingAddress)}</p>
             )}
             {gstNumber && <p className="text-xs text-slate-500">GSTIN: {gstNumber}</p>}
           </div>
