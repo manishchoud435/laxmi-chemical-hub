@@ -16,6 +16,8 @@ import { BuyerAutocomplete } from "@/components/quotation/BuyerAutocomplete";
 import ShareDocumentButtons from "@/components/ShareDocumentButtons";
 import { saveBlob, type GeneratedFile } from "@/lib/shareDocument";
 import { markDocNumberUsed, peekDocNumber, type DocKind } from "@/lib/docSequence";
+import { saveDocument, type SavedDocument } from "@/lib/documentRegister";
+import DocumentRegister from "@/components/quotation/DocumentRegister";
 import {
   inr,
   quotationShareMessage,
@@ -183,6 +185,8 @@ export default function Quotation() {
   const [theme, setTheme]             = useState<"light" | "dark">("light");
   const [downloading, setDownloading] = useState(false);
   const [draftStatus, setDraftStatus] = useState<string>("");
+  /** Bumped after an export so the register list refreshes. */
+  const [registerToken, setRegisterToken] = useState(0);
   const previewRef = useRef<HTMLDivElement | null>(null);
 
   const formValues   = watch() as QuotationFormValues;
@@ -379,7 +383,24 @@ export default function Quotation() {
         .outputPdf("blob")) as Blob;
       // The number is only consumed once a document really exists, so cleared
       // or abandoned drafts don't leave gaps in the sequence.
-      markDocNumberUsed(docKindOf(docType === "proforma"), docNo);
+      const kind = docKindOf(docType === "proforma");
+      markDocNumberUsed(kind, docNo);
+
+      // Record it in the register at the same moment, so the register lists
+      // exactly what was issued — never a draft that was merely typed.
+      saveDocument({
+        kind,
+        docNo: docNo ?? "",
+        docDate:     formValues.quotationDate,
+        buyerName:   buyer ?? "",
+        contactName: formValues.contactName,
+        city:        formValues.city,
+        grandTotal:  totals.grandTotal,
+        itemCount:   filledProductItems.length,
+        values:      getValues(),
+      });
+      setRegisterToken((token) => token + 1);
+
       return { blob, fileName: filename };
     } catch (err) {
       console.error(err);
@@ -394,6 +415,54 @@ export default function Quotation() {
     const file = await buildPdf();
     if (file) saveBlob(file.blob, file.fileName);
   };
+
+  /**
+   * Load a document from the register back into the form.
+   *
+   * `keepNumber` reopens it as issued — for reprinting or correcting the same
+   * document. Otherwise the contents are copied onto the next free number of
+   * `asKind`, dated today, which covers both revising a quotation and turning
+   * one into a proforma invoice.
+   */
+  const restoreDocument = (
+    doc: SavedDocument,
+    { keepNumber, asKind }: { keepNumber: boolean; asKind: DocKind }
+  ) => {
+    const values = doc.values as QuotationFormValues | undefined;
+    if (!values) {
+      toast.error("That document could not be reopened.");
+      return;
+    }
+
+    reset(values);
+    setDocType(asKind === "proforma" ? "proforma" : "quotation");
+    // The signatory is enforced on the live form regardless of what was stored.
+    setValue("signBy", AUTHORIZED_SIGNATORY_DEFAULT);
+
+    if (keepNumber) {
+      setValue("quotationNo", doc.docNo);
+      toast.success(`${doc.docNo} reopened.`);
+      return;
+    }
+
+    const nextNo = peekDocNumber(asKind);
+    setValue("quotationNo", nextNo);
+    setValue("quotationDate", getTodayDate());
+    toast.success(
+      asKind === doc.kind
+        ? `Copied ${doc.docNo} onto ${nextNo}.`
+        : `${doc.docNo} converted to proforma invoice ${nextNo}.`
+    );
+  };
+
+  const handleOpenDocument = (doc: SavedDocument) =>
+    restoreDocument(doc, { keepNumber: true, asKind: doc.kind });
+
+  const handleDuplicateDocument = (doc: SavedDocument) =>
+    restoreDocument(doc, { keepNumber: false, asKind: doc.kind });
+
+  const handleConvertDocument = (doc: SavedDocument) =>
+    restoreDocument(doc, { keepNumber: false, asKind: "proforma" });
 
   /** Everything the share note needs, mapped from the live form values. */
   const shareMessageInput: QuotationMessageInput = {
@@ -450,6 +519,14 @@ export default function Quotation() {
 
         <div className="grid gap-6 sm:gap-8 xl:grid-cols-[1.05fr_0.95fr]">
           <div className="space-y-6 sm:space-y-8">
+
+            {/* ── Register of issued documents ── */}
+            <DocumentRegister
+              refreshToken={registerToken}
+              onOpen={handleOpenDocument}
+              onDuplicate={handleDuplicateDocument}
+              onConvert={handleConvertDocument}
+            />
 
             {/* ── Company Info (read-only) ── */}
             <section className="rounded-[24px] border border-slate-200 bg-white p-4 shadow-[var(--shadow-card)] sm:rounded-[28px] sm:p-6 dark:border-slate-800 dark:bg-slate-900">
