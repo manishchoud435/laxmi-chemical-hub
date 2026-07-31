@@ -17,6 +17,7 @@ import ShareDocumentButtons from "@/components/ShareDocumentButtons";
 import { saveBlob, type GeneratedFile, type ShareChannel } from "@/lib/shareDocument";
 import { markDocNumberUsed, peekDocNumber, type DocKind } from "@/lib/docSequence";
 import {
+  inr,
   quotationShareMessage,
   quotationSubject,
   type QuotationMessageInput,
@@ -87,6 +88,34 @@ const docKindOf = (isProforma: boolean): DocKind => (isProforma ? "proforma" : "
 const generateDocNumber = (isProforma: boolean) => peekDocNumber(docKindOf(isProforma));
 
 
+type ProductItem = QuotationFormValues["products"][number];
+
+/** True once a line item carries anything beyond the product name. */
+const rowHasDetails = (item?: ProductItem) =>
+  Boolean(
+    Number(item?.quantity || 0) ||
+      Number(item?.rate || 0) ||
+      Number(item?.gst || 0) ||
+      item?.hsn?.trim() ||
+      item?.packing?.trim()
+  );
+
+/** "200 Ltrs · ₹185.00/Ltrs · GST 18%" — shown while a row is collapsed. */
+const rowSummary = (item?: ProductItem) => {
+  const qty = Number(item?.quantity || 0);
+  const rate = Number(item?.rate || 0);
+  const gst = Number(item?.gst || 0);
+  const unit = item?.unit?.trim() || "";
+  return [
+    qty ? `${qty}${unit ? ` ${unit}` : ""}` : "",
+    rate ? `${inr(rate)}${unit ? `/${unit}` : ""}` : "",
+    gst ? `GST ${gst}%` : "",
+    item?.packing?.trim() || "",
+  ]
+    .filter(Boolean)
+    .join("  ·  ");
+};
+
 const defaultValues: QuotationFormValues = {
   quotationNo:     "",
   quotationDate:   getTodayDate(),
@@ -135,6 +164,16 @@ export default function Quotation() {
   });
 
   const { fields, append, remove } = useFieldArray({ name: "products", control });
+
+  // A new line item starts as just the product picker — the six detail fields
+  // stay behind "Add details" so a ten-product quotation isn't six screens of
+  // inputs. Keyed by the field-array id, which survives reordering.
+  const [expandedRows, setExpandedRows] = useState<Record<string, boolean>>({});
+
+  // Takes the effective state rather than reading it back: a row restored from a
+  // draft is open because it already holds values, not because of an entry here.
+  const toggleRow = (id: string, expanded: boolean) =>
+    setExpandedRows((prev) => ({ ...prev, [id]: !expanded }));
 
   const [docType, setDocType]         = useState<DocType>("quotation");
   const [theme, setTheme]             = useState<"light" | "dark">("light");
@@ -500,7 +539,13 @@ export default function Quotation() {
               </div>
 
               <div className="mt-5 divide-y divide-slate-200 overflow-hidden rounded-2xl border border-slate-200 sm:mt-6 sm:rounded-3xl dark:divide-slate-800 dark:border-slate-800">
-                {fields.map((field, index) => (
+                {fields.map((field, index) => {
+                  const item = productItems?.[index];
+                  // Absent from the map means collapsed, unless the row already
+                  // holds values — a restored draft must not hide what's in it.
+                  const isExpanded = expandedRows[field.id] ?? rowHasDetails(item);
+                  const summary = rowSummary(item);
+                  return (
                   <div key={field.id} className="bg-white px-3 py-4 sm:px-5 sm:py-5 dark:bg-slate-950">
                     <div className="mb-3 flex items-center gap-2 sm:mb-4 sm:gap-3">
                       <span className="shrink-0 text-xs font-semibold text-slate-400">#{index + 1}</span>
@@ -527,6 +572,7 @@ export default function Quotation() {
                         &times;
                       </Button>
                     </div>
+                    {isExpanded && (
                     <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-3 xl:grid-cols-6">
                       <div className="grid min-w-0 gap-1">
                         <label className="text-xs font-medium text-slate-500 dark:text-slate-400">Qty</label>
@@ -560,8 +606,26 @@ export default function Quotation() {
                         <Input {...register(`products.${index}.packing` as const)} placeholder="25 Kg bag" className="text-xs sm:text-sm" />
                       </div>
                     </div>
+                    )}
+
+                    {/* Collapsed rows keep a one-line recap so nothing entered
+                        is hidden without a trace. */}
+                    {!isExpanded && summary && (
+                      <p className="mb-2 text-xs text-slate-500 dark:text-slate-400">{summary}</p>
+                    )}
+
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => toggleRow(field.id, isExpanded)}
+                      className="h-auto px-0 py-1 text-xs text-primary hover:bg-transparent hover:underline"
+                    >
+                      {isExpanded ? "Hide details" : "+ Add details"}
+                    </Button>
                   </div>
-                ))}
+                  );
+                })}
                 {fields.length === 0 && (
                   <p className="bg-white px-4 py-6 text-center text-sm text-slate-500 dark:bg-slate-950">
                     No products added yet. Tap "+ Add Product" to start.
