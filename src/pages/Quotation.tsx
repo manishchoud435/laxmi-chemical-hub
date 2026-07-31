@@ -88,17 +88,16 @@ const docKindOf = (isProforma: boolean): DocKind => (isProforma ? "proforma" : "
 const generateDocNumber = (isProforma: boolean) => peekDocNumber(docKindOf(isProforma));
 
 
-type ProductItem = QuotationFormValues["products"][number];
+/**
+ * Selectable GST slabs. Nil is kept in the list so an exempt item — and any
+ * draft saved before this was a dropdown, which stored 0 — still matches an
+ * option; without it the select would display 5% while the stored value stayed
+ * 0, and the PDF would disagree with the form.
+ */
+const GST_RATE_OPTIONS = [0, 5, 9, 12, 18] as const;
+const GST_RATE_DEFAULT = 18;
 
-/** True once a line item carries anything beyond the product name. */
-const rowHasDetails = (item?: ProductItem) =>
-  Boolean(
-    Number(item?.quantity || 0) ||
-      Number(item?.rate || 0) ||
-      Number(item?.gst || 0) ||
-      item?.hsn?.trim() ||
-      item?.packing?.trim()
-  );
+type ProductItem = QuotationFormValues["products"][number];
 
 /** "200 Ltrs · ₹185.00/Ltrs · GST 18%" — shown while a row is collapsed. */
 const rowSummary = (item?: ProductItem) => {
@@ -138,7 +137,7 @@ const defaultValues: QuotationFormValues = {
   sealName:        "",
   signBy:          AUTHORIZED_SIGNATORY_DEFAULT,
   products: [
-    { productName: "", quantity: 0, unit: "Kgs", rate: 0, gst: 0, hsn: "", packing: "" },
+    { productName: "", quantity: 0, unit: "Kgs", rate: 0, gst: GST_RATE_DEFAULT, hsn: "", packing: "" },
   ],
 };
 
@@ -165,13 +164,13 @@ export default function Quotation() {
 
   const { fields, append, remove } = useFieldArray({ name: "products", control });
 
-  // A new line item starts as just the product picker — the six detail fields
-  // stay behind "Add details" so a ten-product quotation isn't six screens of
-  // inputs. Keyed by the field-array id, which survives reordering.
+  // Line items show all their fields by default. This tracks the rows the user
+  // has collapsed by hand, so a long quotation can be tidied up. Keyed by the
+  // field-array id, which survives reordering.
   const [expandedRows, setExpandedRows] = useState<Record<string, boolean>>({});
 
-  // Takes the effective state rather than reading it back: a row restored from a
-  // draft is open because it already holds values, not because of an entry here.
+  // Takes the effective state rather than reading it back, since a row with no
+  // entry here is open by default rather than closed.
   const toggleRow = (id: string, expanded: boolean) =>
     setExpandedRows((prev) => ({ ...prev, [id]: !expanded }));
 
@@ -522,28 +521,17 @@ export default function Quotation() {
 
             {/* ── Line Items ── */}
             <section className="rounded-[24px] border border-slate-200 bg-white p-4 shadow-[var(--shadow-card)] sm:rounded-[28px] sm:p-6 dark:border-slate-800 dark:bg-slate-900">
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <div>
-                  <p className="text-xs uppercase tracking-[0.2em] text-slate-500 sm:text-sm sm:tracking-[0.3em] dark:text-slate-400">Product Quotation</p>
-                  <h2 className="mt-1 text-xl font-semibold sm:mt-2 sm:text-2xl">Line Items</h2>
-                </div>
-                <Button
-                  type="button"
-                  variant="secondary"
-                  size="sm"
-                  onClick={() => append({ productName: "", quantity: 0, unit: "Kgs", rate: 0, gst: 0, hsn: "", packing: "" })}
-                  className="shrink-0 text-xs sm:text-sm"
-                >
-                  + Add Product
-                </Button>
+              <div>
+                <p className="text-xs uppercase tracking-[0.2em] text-slate-500 sm:text-sm sm:tracking-[0.3em] dark:text-slate-400">Product Quotation</p>
+                <h2 className="mt-1 text-xl font-semibold sm:mt-2 sm:text-2xl">Line Items</h2>
               </div>
 
               <div className="mt-5 divide-y divide-slate-200 overflow-hidden rounded-2xl border border-slate-200 sm:mt-6 sm:rounded-3xl dark:divide-slate-800 dark:border-slate-800">
                 {fields.map((field, index) => {
                   const item = productItems?.[index];
-                  // Absent from the map means collapsed, unless the row already
-                  // holds values — a restored draft must not hide what's in it.
-                  const isExpanded = expandedRows[field.id] ?? rowHasDetails(item);
+                  // Details are shown by default; absent from the map means the
+                  // row has never been collapsed by hand.
+                  const isExpanded = expandedRows[field.id] ?? true;
                   const summary = rowSummary(item);
                   return (
                   <div key={field.id} className="bg-white px-3 py-4 sm:px-5 sm:py-5 dark:bg-slate-950">
@@ -595,7 +583,16 @@ export default function Quotation() {
                       </div>
                       <div className="grid min-w-0 gap-1">
                         <label className="text-xs font-medium text-slate-500 dark:text-slate-400">GST %</label>
-                        <Input {...register(`products.${index}.gst` as const, { valueAsNumber: true })} type="number" min={0} step={0.1} placeholder="18" className="text-xs sm:text-sm" />
+                        <select
+                          {...register(`products.${index}.gst` as const, { valueAsNumber: true })}
+                          className="min-w-0 rounded-md border border-input bg-background px-2 py-2 text-xs shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/30 sm:px-3 sm:text-sm dark:bg-slate-800 dark:text-slate-100"
+                        >
+                          {GST_RATE_OPTIONS.map((rate) => (
+                            <option key={rate} value={rate}>
+                              {rate === 0 ? "Nil (0%)" : `${rate}%`}
+                            </option>
+                          ))}
+                        </select>
                       </div>
                       <div className="grid min-w-0 gap-1">
                         <label className="text-xs font-medium text-slate-500 dark:text-slate-400">HSN / SAC</label>
@@ -621,16 +618,32 @@ export default function Quotation() {
                       onClick={() => toggleRow(field.id, isExpanded)}
                       className="h-auto px-0 py-1 text-xs text-primary hover:bg-transparent hover:underline"
                     >
-                      {isExpanded ? "Hide details" : "+ Add details"}
+                      {isExpanded ? "Hide details" : "Show details"}
                     </Button>
                   </div>
                   );
                 })}
                 {fields.length === 0 && (
-                  <p className="bg-white px-4 py-6 text-center text-sm text-slate-500 dark:bg-slate-950">
-                    No products added yet. Tap "+ Add Product" to start.
+                  <p className="bg-white px-4 pt-6 text-center text-sm text-slate-500 dark:bg-slate-950">
+                    No products added yet.
                   </p>
                 )}
+
+                {/* The next row is not opened for you — it appears here only
+                    once you ask for it. */}
+                <div className="bg-white px-3 py-4 sm:px-5 dark:bg-slate-950">
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    size="sm"
+                    onClick={() =>
+                      append({ productName: "", quantity: 0, unit: "Kgs", rate: 0, gst: GST_RATE_DEFAULT, hsn: "", packing: "" })
+                    }
+                    className="w-full text-xs sm:text-sm"
+                  >
+                    {fields.length === 0 ? "+ Add product" : "+ Add one more product"}
+                  </Button>
+                </div>
                 {errors.products?.message && (
                   <p className="bg-white px-4 py-3 text-sm font-medium text-destructive dark:bg-slate-950">{errors.products.message}</p>
                 )}
