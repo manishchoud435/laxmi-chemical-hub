@@ -14,7 +14,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/components/ui/sonner";
 import { BuyerAutocomplete } from "@/components/quotation/BuyerAutocomplete";
 import ShareDocumentButtons from "@/components/ShareDocumentButtons";
-import { saveBlob, type GeneratedFile, type ShareChannel } from "@/lib/shareDocument";
+import { saveBlob, type GeneratedFile } from "@/lib/shareDocument";
 import { markDocNumberUsed, peekDocNumber, type DocKind } from "@/lib/docSequence";
 import {
   inr,
@@ -402,7 +402,6 @@ export default function Quotation() {
     docDate:       formValues.quotationDate,
     buyerName:     formValues.buyerName,
     contactName:   formValues.contactName,
-    signBy:        formValues.signBy || AUTHORIZED_SIGNATORY_DEFAULT,
     remarks:       formValues.remarks,
     paymentTerms:  formValues.paymentTerms,
     deliveryTerms: formValues.deliveryTerms,
@@ -413,9 +412,7 @@ export default function Quotation() {
   };
 
   const shareSubject = quotationSubject(shareMessageInput);
-
-  const buildShareMessage = (channel: ShareChannel) =>
-    quotationShareMessage(channel, shareMessageInput);
+  const shareMessage = quotationShareMessage(shareMessageInput);
 
   return (
     <main className="min-h-screen bg-[#f4f8ff] px-3 py-14 text-slate-900 sm:px-4 sm:py-24 dark:bg-slate-950 dark:text-slate-100">
@@ -793,7 +790,7 @@ export default function Quotation() {
                     disabled={downloading}
                     className="flex-1 text-xs sm:text-sm"
                     title={shareSubject}
-                    message={buildShareMessage}
+                    message={shareMessage}
                   />
                 </div>
                 <Button variant="outline" onClick={() => window.print()} className="text-xs sm:text-sm">
