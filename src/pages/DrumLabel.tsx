@@ -9,6 +9,7 @@ import { productCategories } from "@/data/products";
 import { getProductSafety } from "@/data/productSafety";
 import { COMPANY } from "@/data/company";
 import {
+  copyToClipboard,
   saveBlob,
   shareDocument,
   type GeneratedFile,
@@ -530,15 +531,23 @@ const DrumLabel = () => {
     if (sharing) return;
     setSharing(channel);
     try {
+      const product = form.productName?.trim() || "product";
+      const message = `Please find attached the drum label for ${product}.\n\n${COMPANY.name}\n${COMPANY.phone}\n${COMPANY.email}`;
+
+      // WhatsApp drops the caption when a file is attached, so copy the message
+      // before rendering, while the click gesture is still active.
+      const messageCopied =
+        channel === "whatsapp" ? await copyToClipboard(message) : false;
+
       const file: GeneratedFile | null = thermalSize
         ? buildThermalPdf()
         : await buildPdf();
       if (!file) return;
-      const product = form.productName?.trim() || "product";
       await shareDocument(channel, {
         ...file,
         title: `Drum label — ${product} | ${COMPANY.name}`,
-        message: `Please find attached the drum label for ${product}.\n\n${COMPANY.name}\n${COMPANY.phone}\n${COMPANY.email}`,
+        message,
+        messageCopied,
       });
     } finally {
       setSharing(null);

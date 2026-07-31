@@ -15,6 +15,11 @@ export interface ShareDocumentInput extends GeneratedFile {
   title: string;
   /** Prefilled WhatsApp / email body. */
   message: string;
+  /**
+   * Whether the caller already put `message` on the clipboard. Only affects the
+   * wording of the hint shown after a WhatsApp share.
+   */
+  messageCopied?: boolean;
 }
 
 /**
@@ -59,6 +64,39 @@ function channelUrl(channel: ShareChannel, title: string, message: string) {
 }
 
 /**
+ * Copy text to the clipboard, reporting whether it worked.
+ *
+ * Call this while the click gesture is still active — the async clipboard API
+ * requires transient activation, which a long PDF render would have used up.
+ */
+export async function copyToClipboard(text: string): Promise<boolean> {
+  try {
+    if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(text);
+      return true;
+    }
+  } catch {
+    // Permission denied or no secure context — try the legacy path below.
+  }
+
+  try {
+    const area = document.createElement("textarea");
+    area.value = text;
+    area.setAttribute("readonly", "");
+    area.style.position = "fixed";
+    area.style.top = "0";
+    area.style.opacity = "0";
+    document.body.appendChild(area);
+    area.select();
+    const copied = document.execCommand("copy");
+    area.remove();
+    return copied;
+  } catch {
+    return false;
+  }
+}
+
+/**
  * Share a generated document through WhatsApp or email.
  *
  * On phones and tablets the file is handed to the OS share sheet, where
@@ -66,10 +104,16 @@ function channelUrl(channel: ShareChannel, title: string, message: string) {
  * attachment. On desktop that API doesn't accept files, and neither `wa.me`
  * nor `mailto:` can carry an attachment, so the file is downloaded and the
  * channel opens with the text prefilled for the user to attach it themselves.
+ *
+ * `text` is still sent with the file because Gmail and Mail use it as the body.
+ * WhatsApp does not: given both a file and text it keeps only the file and
+ * silently drops the caption. Nothing in the API can override that, so callers
+ * copy the message to the clipboard first (see `messageCopied`) and the user
+ * pastes it into the chat after the PDF.
  */
 export async function shareDocument(
   channel: ShareChannel,
-  { blob, fileName, title, message }: ShareDocumentInput
+  { blob, fileName, title, message, messageCopied }: ShareDocumentInput
 ): Promise<ShareOutcome> {
   const nav = navigator as NavigatorWithShare;
   const file = new File([blob], fileName, {
@@ -79,6 +123,13 @@ export async function shareDocument(
   if (nav.share && nav.canShare?.({ files: [file] })) {
     try {
       await nav.share({ files: [file], title, text: message });
+      if (channel === "whatsapp") {
+        toast.info(
+          messageCopied
+            ? "PDF shared. WhatsApp drops the caption, so the message is copied — paste it into the same chat."
+            : "PDF shared. WhatsApp drops the caption, so the message has to be typed or pasted separately."
+        );
+      }
       return "shared";
     } catch (err) {
       // The user dismissing the sheet is not an error worth reporting.
