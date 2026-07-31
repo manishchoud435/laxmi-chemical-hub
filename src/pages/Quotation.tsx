@@ -58,7 +58,10 @@ const quotationSchema = z.object({
   products: z
     .array(
       z.object({
-        productName: z.string().min(1, "Select a product."),
+        // Optional per row: an unfilled row left over from "Add one more
+        // product" is dropped from the document rather than blocking export.
+        // The refine below still insists on at least one real product.
+        productName: z.string().optional(),
         quantity:    z.number().optional(),
         unit:        z.string().optional(),
         rate:        z.number().optional(),
@@ -67,7 +70,9 @@ const quotationSchema = z.object({
         packing:     z.string().optional(),
       })
     )
-    .min(1, "Add at least one product."),
+    .refine((items) => items.some((item) => item.productName?.trim()), {
+      message: "Add at least one product.",
+    }),
 });
 
 type QuotationFormValues = z.infer<typeof quotationSchema>;
@@ -183,15 +188,26 @@ export default function Quotation() {
   const formValues   = watch() as QuotationFormValues;
   const productItems = watch("products") as QuotationFormValues["products"];
 
+  /**
+   * Rows with a product actually chosen. A row added by "Add one more product"
+   * and then left alone must not reach the document, the totals or the share
+   * note — it stays in the form so it can still be filled in, but counts for
+   * nothing until it names a product.
+   */
+  const filledProductItems = useMemo(
+    () => productItems.filter((item) => item.productName?.trim()),
+    [productItems]
+  );
+
   const totals = useMemo(() => {
-    const subtotal = productItems.reduce(
+    const subtotal = filledProductItems.reduce(
       (s, i) => s + Number(i.quantity || 0) * Number(i.rate || 0), 0
     );
-    const gst = productItems.reduce(
+    const gst = filledProductItems.reduce(
       (s, i) => s + Number(i.quantity || 0) * Number(i.rate || 0) * (Number(i.gst || 0) / 100), 0
     );
     return { subtotal, gst, grandTotal: subtotal + gst };
-  }, [productItems]);
+  }, [filledProductItems]);
 
   useEffect(() => {
     const savedTheme = window.localStorage.getItem("quotation-theme");
@@ -392,7 +408,7 @@ export default function Quotation() {
     deliveryTerms: formValues.deliveryTerms,
     leadTime:      formValues.leadTime,
     validity:      formValues.validity,
-    items:         productItems,
+    items:         filledProductItems,
     totals,
   };
 
@@ -538,7 +554,7 @@ export default function Quotation() {
                     <div className="mb-3 flex items-center gap-2 sm:mb-4 sm:gap-3">
                       <span className="shrink-0 text-xs font-semibold text-slate-400">#{index + 1}</span>
                       <select
-                        {...register(`products.${index}.productName` as const, { required: true })}
+                        {...register(`products.${index}.productName` as const)}
                         className="min-w-0 flex-1 rounded-md border border-input bg-background px-2 py-2 text-xs shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/30 sm:px-3 sm:text-sm dark:bg-slate-800 dark:text-slate-100"
                       >
                         <option value="">Select product…</option>
@@ -644,8 +660,12 @@ export default function Quotation() {
                     {fields.length === 0 ? "+ Add product" : "+ Add one more product"}
                   </Button>
                 </div>
-                {errors.products?.message && (
-                  <p className="bg-white px-4 py-3 text-sm font-medium text-destructive dark:bg-slate-950">{errors.products.message}</p>
+                {/* Depending on the resolver an array-level message lands on
+                    `products` or on `products.root` — show whichever is set. */}
+                {(errors.products?.message ?? errors.products?.root?.message) && (
+                  <p className="bg-white px-4 py-3 text-sm font-medium text-destructive dark:bg-slate-950">
+                    {errors.products?.message ?? errors.products?.root?.message}
+                  </p>
                 )}
               </div>
             </section>
@@ -814,7 +834,7 @@ export default function Quotation() {
               city={formValues.city}
               state={formValues.state}
               pincode={formValues.pincode}
-              products={formValues.products as QuotationProductItem[]}
+              products={filledProductItems as QuotationProductItem[]}
               paymentTerms={formValues.paymentTerms}
               deliveryTerms={formValues.deliveryTerms}
               leadTime={formValues.leadTime}
