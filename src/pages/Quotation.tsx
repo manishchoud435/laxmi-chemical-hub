@@ -13,6 +13,14 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/components/ui/sonner";
 import { BuyerAutocomplete } from "@/components/quotation/BuyerAutocomplete";
+import ShareDocumentButtons from "@/components/ShareDocumentButtons";
+import { saveBlob, type GeneratedFile, type ShareChannel } from "@/lib/shareDocument";
+import { markDocNumberUsed, peekDocNumber, type DocKind } from "@/lib/docSequence";
+import {
+  quotationShareMessage,
+  quotationSubject,
+  type QuotationMessageInput,
+} from "@/lib/quotationMessage";
 import {
   QuotationPreview,
   type QuotationProductItem,
@@ -72,14 +80,12 @@ const getTodayDate = (): string => {
   return `${today.getFullYear()}-${pad(today.getMonth() + 1)}-${pad(today.getDate())}`;
 };
 
-// Generate a document number using the same prefix as the placeholders
-const generateDocNumber = (isProforma: boolean) => {
-  const src = isProforma ? PROFORMA_PLACEHOLDER : QUOTATION_PLACEHOLDER;
-  const idx = src.lastIndexOf("/") + 1;
-  const prefix = src.slice(0, idx);
-  const suffix = String(Math.floor(Math.random() * 999) + 1).padStart(3, "0");
-  return `${prefix}${suffix}`;
-};
+const docKindOf = (isProforma: boolean): DocKind => (isProforma ? "proforma" : "quotation");
+
+// Next number in the stored running sequence (001, 002, 003 …), restarting each
+// financial year. Only committed once a PDF is generated — see buildPdf.
+const generateDocNumber = (isProforma: boolean) => peekDocNumber(docKindOf(isProforma));
+
 
 const defaultValues: QuotationFormValues = {
   quotationNo:     "",
@@ -265,11 +271,12 @@ export default function Quotation() {
     toast.success("Draft cleared and reset to defaults.");
   };
 
-  const handleDownloadPdf = async () => {
+  /** Renders the preview to a PDF blob, shared by the download and share actions. */
+  const buildPdf = async (): Promise<GeneratedFile | null> => {
     const valid = await trigger();
-    if (!valid) { toast.error("Please complete all required fields before export."); return; }
+    if (!valid) { toast.error("Please complete all required fields before export."); return null; }
     const source = previewRef.current;
-    if (!source) return;
+    if (!source) return null;
     setDownloading(true);
     const docNo    = formValues.quotationNo?.trim();
     const buyer    = formValues.buyerName?.trim();
@@ -291,7 +298,7 @@ export default function Quotation() {
     // width so those breakpoints apply and the PDF matches the desktop output.
     const PDF_WIDTH = 1024;
     try {
-      await html2pdf()
+      const blob = (await html2pdf()
         .from(source)
         .set({
           margin: 8,
@@ -315,14 +322,46 @@ export default function Quotation() {
           // @ts-ignore
           pagebreak: { mode: ["css", "legacy"] },
         })
-        .save();
+        .outputPdf("blob")) as Blob;
+      // The number is only consumed once a document really exists, so cleared
+      // or abandoned drafts don't leave gaps in the sequence.
+      markDocNumberUsed(docKindOf(docType === "proforma"), docNo);
+      return { blob, fileName: filename };
     } catch (err) {
       console.error(err);
       toast.error("Failed to generate PDF. Please try again.");
+      return null;
     } finally {
       setDownloading(false);
     }
   };
+
+  const handleDownloadPdf = async () => {
+    const file = await buildPdf();
+    if (file) saveBlob(file.blob, file.fileName);
+  };
+
+  /** Everything the share note needs, mapped from the live form values. */
+  const shareMessageInput: QuotationMessageInput = {
+    isProforma:    docType === "proforma",
+    docNo:         formValues.quotationNo,
+    docDate:       formValues.quotationDate,
+    buyerName:     formValues.buyerName,
+    contactName:   formValues.contactName,
+    signBy:        formValues.signBy || AUTHORIZED_SIGNATORY_DEFAULT,
+    remarks:       formValues.remarks,
+    paymentTerms:  formValues.paymentTerms,
+    deliveryTerms: formValues.deliveryTerms,
+    leadTime:      formValues.leadTime,
+    validity:      formValues.validity,
+    items:         productItems,
+    totals,
+  };
+
+  const shareSubject = quotationSubject(shareMessageInput);
+
+  const buildShareMessage = (channel: ShareChannel) =>
+    quotationShareMessage(channel, shareMessageInput);
 
   return (
     <main className="min-h-screen bg-[#f4f8ff] px-3 py-14 text-slate-900 sm:px-4 sm:py-24 dark:bg-slate-950 dark:text-slate-100">
@@ -651,6 +690,15 @@ export default function Quotation() {
                     ? "Download Proforma PDF"
                     : "Download Quotation PDF"}
                 </Button>
+                <div className="flex gap-3">
+                  <ShareDocumentButtons
+                    onGenerate={buildPdf}
+                    disabled={downloading}
+                    className="flex-1 text-xs sm:text-sm"
+                    title={shareSubject}
+                    message={buildShareMessage}
+                  />
+                </div>
                 <Button variant="outline" onClick={() => window.print()} className="text-xs sm:text-sm">
                   Print Friendly View
                 </Button>

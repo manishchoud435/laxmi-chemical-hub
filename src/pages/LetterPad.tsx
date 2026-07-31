@@ -29,6 +29,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/components/ui/sonner";
+import ShareDocumentButtons from "@/components/ShareDocumentButtons";
+import { saveBlob, type GeneratedFile } from "@/lib/shareDocument";
 import { LetterheadPreview } from "@/components/letterpad/LetterheadPreview";
 
 const PASS = "laxmichem72";
@@ -357,9 +359,10 @@ export default function LetterPad() {
     }
   };
 
-  const handleDownloadPdf = async () => {
+  /** Renders the letterhead to a PDF blob, shared by the download and share actions. */
+  const buildPdf = async (): Promise<GeneratedFile | null> => {
     const sheet = previewRef.current?.querySelector(".letterhead-preview") as HTMLElement | null;
-    if (!sheet) return;
+    if (!sheet) return null;
     setDownloadingPdf(true);
 
     try {
@@ -544,13 +547,19 @@ export default function LetterPad() {
         });
       }
 
-      pdf.save(`${FILE_BASE}.pdf`);
+      return { blob: pdf.output("blob"), fileName: `${FILE_BASE}.pdf` };
     } catch (err) {
       console.error(err);
       toast.error("Failed to generate PDF. Please try again.");
+      return null;
     } finally {
       setDownloadingPdf(false);
     }
+  };
+
+  const handleDownloadPdf = async () => {
+    const file = await buildPdf();
+    if (file) saveBlob(file.blob, file.fileName);
   };
 
   const handleDownloadWord = async () => {
@@ -652,6 +661,13 @@ export default function LetterPad() {
               >
                 {downloadingWord ? "Generating Word…" : "Download Word (.docx)"}
               </Button>
+              <ShareDocumentButtons
+                onGenerate={buildPdf}
+                disabled={downloadingPdf}
+                className="text-xs sm:text-sm"
+                title={`Letter from ${COMPANY.name}`}
+                message={`Dear Sir/Madam,\n\nPlease find the attached letter from ${COMPANY.name}.\n\nRegards,\n${COMPANY.name}\n${COMPANY.phone}\n${COMPANY.email}`}
+              />
               <Button variant="outline" size="sm" onClick={() => window.print()} className="text-xs sm:text-sm">
                 Print
               </Button>
