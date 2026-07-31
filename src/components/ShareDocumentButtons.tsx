@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Mail, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
+  copyToClipboard,
   shareDocument,
   type GeneratedFile,
   type ShareChannel,
@@ -42,10 +43,18 @@ const ShareDocumentButtons = ({
     if (busy) return;
     setBusy(channel);
     try {
+      const body = typeof message === "function" ? message(channel) : message;
+
+      // WhatsApp keeps the file and drops the caption, so the message goes to
+      // the clipboard for the user to paste. This has to happen before the PDF
+      // is rendered — the clipboard API needs the click still to be active, and
+      // rendering takes long enough to lose that.
+      const messageCopied =
+        channel === "whatsapp" ? await copyToClipboard(body) : false;
+
       const file = await onGenerate();
       if (!file) return;
-      const body = typeof message === "function" ? message(channel) : message;
-      await shareDocument(channel, { ...file, title, message: body });
+      await shareDocument(channel, { ...file, title, message: body, messageCopied });
     } finally {
       setBusy(null);
     }

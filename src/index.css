@@ -127,4 +127,34 @@ All colors MUST be HSL.
   body {
     @apply bg-background text-foreground;
   }
+
+  /*
+   * Mobile Safari gives date inputs its own metrics: the value is centred
+   * inside the field and carries a UA margin, so a date sat visibly lower and
+   * off-centre next to the text inputs beside it. These rules make it line up
+   * with a normal input and keep the calendar icon at the right edge.
+   */
+  input[type="date"] {
+    -webkit-appearance: none;
+    appearance: none;
+    min-height: 2.5rem; /* matches the h-10 on <Input> */
+    display: flex;
+    align-items: center;
+  }
+
+  input[type="date"]::-webkit-date-and-time-value {
+    text-align: left;
+    margin: 0;
+  }
+
+  input[type="date"]::-webkit-datetime-edit {
+    display: inline-flex;
+    align-items: center;
+    padding: 0;
+    line-height: normal;
+  }
+
+  input[type="date"]::-webkit-calendar-picker-indicator {
+    margin-inline-start: auto;
+  }
 }

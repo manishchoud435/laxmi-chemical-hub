@@ -17,6 +17,7 @@ import ShareDocumentButtons from "@/components/ShareDocumentButtons";
 import { saveBlob, type GeneratedFile, type ShareChannel } from "@/lib/shareDocument";
 import { markDocNumberUsed, peekDocNumber, type DocKind } from "@/lib/docSequence";
 import {
+  inr,
   quotationShareMessage,
   quotationSubject,
   type QuotationMessageInput,
@@ -57,7 +58,10 @@ const quotationSchema = z.object({
   products: z
     .array(
       z.object({
-        productName: z.string().min(1, "Select a product."),
+        // Optional per row: an unfilled row left over from "Add one more
+        // product" is dropped from the document rather than blocking export.
+        // The refine below still insists on at least one real product.
+        productName: z.string().optional(),
         quantity:    z.number().optional(),
         unit:        z.string().optional(),
         rate:        z.number().optional(),
@@ -66,7 +70,9 @@ const quotationSchema = z.object({
         packing:     z.string().optional(),
       })
     )
-    .min(1, "Add at least one product."),
+    .refine((items) => items.some((item) => item.productName?.trim()), {
+      message: "Add at least one product.",
+    }),
 });
 
 type QuotationFormValues = z.infer<typeof quotationSchema>;
@@ -86,6 +92,33 @@ const docKindOf = (isProforma: boolean): DocKind => (isProforma ? "proforma" : "
 // financial year. Only committed once a PDF is generated — see buildPdf.
 const generateDocNumber = (isProforma: boolean) => peekDocNumber(docKindOf(isProforma));
 
+
+/**
+ * Selectable GST slabs. Nil is kept in the list so an exempt item — and any
+ * draft saved before this was a dropdown, which stored 0 — still matches an
+ * option; without it the select would display 5% while the stored value stayed
+ * 0, and the PDF would disagree with the form.
+ */
+const GST_RATE_OPTIONS = [0, 5, 9, 12, 18] as const;
+const GST_RATE_DEFAULT = 18;
+
+type ProductItem = QuotationFormValues["products"][number];
+
+/** "200 Ltrs · ₹185.00/Ltrs · GST 18%" — shown while a row is collapsed. */
+const rowSummary = (item?: ProductItem) => {
+  const qty = Number(item?.quantity || 0);
+  const rate = Number(item?.rate || 0);
+  const gst = Number(item?.gst || 0);
+  const unit = item?.unit?.trim() || "";
+  return [
+    qty ? `${qty}${unit ? ` ${unit}` : ""}` : "",
+    rate ? `${inr(rate)}${unit ? `/${unit}` : ""}` : "",
+    gst ? `GST ${gst}%` : "",
+    item?.packing?.trim() || "",
+  ]
+    .filter(Boolean)
+    .join("  ·  ");
+};
 
 const defaultValues: QuotationFormValues = {
   quotationNo:     "",
@@ -109,7 +142,7 @@ const defaultValues: QuotationFormValues = {
   sealName:        "",
   signBy:          AUTHORIZED_SIGNATORY_DEFAULT,
   products: [
-    { productName: "", quantity: 0, unit: "Kgs", rate: 0, gst: 0, hsn: "", packing: "" },
+    { productName: "", quantity: 0, unit: "Kgs", rate: 0, gst: GST_RATE_DEFAULT, hsn: "", packing: "" },
   ],
 };
 
@@ -136,6 +169,16 @@ export default function Quotation() {
 
   const { fields, append, remove } = useFieldArray({ name: "products", control });
 
+  // Line items show all their fields by default. This tracks the rows the user
+  // has collapsed by hand, so a long quotation can be tidied up. Keyed by the
+  // field-array id, which survives reordering.
+  const [expandedRows, setExpandedRows] = useState<Record<string, boolean>>({});
+
+  // Takes the effective state rather than reading it back, since a row with no
+  // entry here is open by default rather than closed.
+  const toggleRow = (id: string, expanded: boolean) =>
+    setExpandedRows((prev) => ({ ...prev, [id]: !expanded }));
+
   const [docType, setDocType]         = useState<DocType>("quotation");
   const [theme, setTheme]             = useState<"light" | "dark">("light");
   const [downloading, setDownloading] = useState(false);
@@ -145,15 +188,26 @@ export default function Quotation() {
   const formValues   = watch() as QuotationFormValues;
   const productItems = watch("products") as QuotationFormValues["products"];
 
+  /**
+   * Rows with a product actually chosen. A row added by "Add one more product"
+   * and then left alone must not reach the document, the totals or the share
+   * note — it stays in the form so it can still be filled in, but counts for
+   * nothing until it names a product.
+   */
+  const filledProductItems = useMemo(
+    () => productItems.filter((item) => item.productName?.trim()),
+    [productItems]
+  );
+
   const totals = useMemo(() => {
-    const subtotal = productItems.reduce(
+    const subtotal = filledProductItems.reduce(
       (s, i) => s + Number(i.quantity || 0) * Number(i.rate || 0), 0
     );
-    const gst = productItems.reduce(
+    const gst = filledProductItems.reduce(
       (s, i) => s + Number(i.quantity || 0) * Number(i.rate || 0) * (Number(i.gst || 0) / 100), 0
     );
     return { subtotal, gst, grandTotal: subtotal + gst };
-  }, [productItems]);
+  }, [filledProductItems]);
 
   useEffect(() => {
     const savedTheme = window.localStorage.getItem("quotation-theme");
@@ -354,7 +408,7 @@ export default function Quotation() {
     deliveryTerms: formValues.deliveryTerms,
     leadTime:      formValues.leadTime,
     validity:      formValues.validity,
-    items:         productItems,
+    items:         filledProductItems,
     totals,
   };
 
@@ -483,29 +537,24 @@ export default function Quotation() {
 
             {/* ── Line Items ── */}
             <section className="rounded-[24px] border border-slate-200 bg-white p-4 shadow-[var(--shadow-card)] sm:rounded-[28px] sm:p-6 dark:border-slate-800 dark:bg-slate-900">
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <div>
-                  <p className="text-xs uppercase tracking-[0.2em] text-slate-500 sm:text-sm sm:tracking-[0.3em] dark:text-slate-400">Product Quotation</p>
-                  <h2 className="mt-1 text-xl font-semibold sm:mt-2 sm:text-2xl">Line Items</h2>
-                </div>
-                <Button
-                  type="button"
-                  variant="secondary"
-                  size="sm"
-                  onClick={() => append({ productName: "", quantity: 0, unit: "Kgs", rate: 0, gst: 0, hsn: "", packing: "" })}
-                  className="shrink-0 text-xs sm:text-sm"
-                >
-                  + Add Product
-                </Button>
+              <div>
+                <p className="text-xs uppercase tracking-[0.2em] text-slate-500 sm:text-sm sm:tracking-[0.3em] dark:text-slate-400">Product Quotation</p>
+                <h2 className="mt-1 text-xl font-semibold sm:mt-2 sm:text-2xl">Line Items</h2>
               </div>
 
               <div className="mt-5 divide-y divide-slate-200 overflow-hidden rounded-2xl border border-slate-200 sm:mt-6 sm:rounded-3xl dark:divide-slate-800 dark:border-slate-800">
-                {fields.map((field, index) => (
+                {fields.map((field, index) => {
+                  const item = productItems?.[index];
+                  // Details are shown by default; absent from the map means the
+                  // row has never been collapsed by hand.
+                  const isExpanded = expandedRows[field.id] ?? true;
+                  const summary = rowSummary(item);
+                  return (
                   <div key={field.id} className="bg-white px-3 py-4 sm:px-5 sm:py-5 dark:bg-slate-950">
                     <div className="mb-3 flex items-center gap-2 sm:mb-4 sm:gap-3">
                       <span className="shrink-0 text-xs font-semibold text-slate-400">#{index + 1}</span>
                       <select
-                        {...register(`products.${index}.productName` as const, { required: true })}
+                        {...register(`products.${index}.productName` as const)}
                         className="min-w-0 flex-1 rounded-md border border-input bg-background px-2 py-2 text-xs shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/30 sm:px-3 sm:text-sm dark:bg-slate-800 dark:text-slate-100"
                       >
                         <option value="">Select product…</option>
@@ -527,6 +576,7 @@ export default function Quotation() {
                         &times;
                       </Button>
                     </div>
+                    {isExpanded && (
                     <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-3 xl:grid-cols-6">
                       <div className="grid min-w-0 gap-1">
                         <label className="text-xs font-medium text-slate-500 dark:text-slate-400">Qty</label>
@@ -549,7 +599,16 @@ export default function Quotation() {
                       </div>
                       <div className="grid min-w-0 gap-1">
                         <label className="text-xs font-medium text-slate-500 dark:text-slate-400">GST %</label>
-                        <Input {...register(`products.${index}.gst` as const, { valueAsNumber: true })} type="number" min={0} step={0.1} placeholder="18" className="text-xs sm:text-sm" />
+                        <select
+                          {...register(`products.${index}.gst` as const, { valueAsNumber: true })}
+                          className="min-w-0 rounded-md border border-input bg-background px-2 py-2 text-xs shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/30 sm:px-3 sm:text-sm dark:bg-slate-800 dark:text-slate-100"
+                        >
+                          {GST_RATE_OPTIONS.map((rate) => (
+                            <option key={rate} value={rate}>
+                              {rate === 0 ? "Nil (0%)" : `${rate}%`}
+                            </option>
+                          ))}
+                        </select>
                       </div>
                       <div className="grid min-w-0 gap-1">
                         <label className="text-xs font-medium text-slate-500 dark:text-slate-400">HSN / SAC</label>
@@ -560,15 +619,53 @@ export default function Quotation() {
                         <Input {...register(`products.${index}.packing` as const)} placeholder="25 Kg bag" className="text-xs sm:text-sm" />
                       </div>
                     </div>
+                    )}
+
+                    {/* Collapsed rows keep a one-line recap so nothing entered
+                        is hidden without a trace. */}
+                    {!isExpanded && summary && (
+                      <p className="mb-2 text-xs text-slate-500 dark:text-slate-400">{summary}</p>
+                    )}
+
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => toggleRow(field.id, isExpanded)}
+                      className="h-auto px-0 py-1 text-xs text-primary hover:bg-transparent hover:underline"
+                    >
+                      {isExpanded ? "Hide details" : "Show details"}
+                    </Button>
                   </div>
-                ))}
+                  );
+                })}
                 {fields.length === 0 && (
-                  <p className="bg-white px-4 py-6 text-center text-sm text-slate-500 dark:bg-slate-950">
-                    No products added yet. Tap "+ Add Product" to start.
+                  <p className="bg-white px-4 pt-6 text-center text-sm text-slate-500 dark:bg-slate-950">
+                    No products added yet.
                   </p>
                 )}
-                {errors.products?.message && (
-                  <p className="bg-white px-4 py-3 text-sm font-medium text-destructive dark:bg-slate-950">{errors.products.message}</p>
+
+                {/* The next row is not opened for you — it appears here only
+                    once you ask for it. */}
+                <div className="bg-white px-3 py-4 sm:px-5 dark:bg-slate-950">
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    size="sm"
+                    onClick={() =>
+                      append({ productName: "", quantity: 0, unit: "Kgs", rate: 0, gst: GST_RATE_DEFAULT, hsn: "", packing: "" })
+                    }
+                    className="w-full text-xs sm:text-sm"
+                  >
+                    {fields.length === 0 ? "+ Add product" : "+ Add one more product"}
+                  </Button>
+                </div>
+                {/* Depending on the resolver an array-level message lands on
+                    `products` or on `products.root` — show whichever is set. */}
+                {(errors.products?.message ?? errors.products?.root?.message) && (
+                  <p className="bg-white px-4 py-3 text-sm font-medium text-destructive dark:bg-slate-950">
+                    {errors.products?.message ?? errors.products?.root?.message}
+                  </p>
                 )}
               </div>
             </section>
@@ -737,7 +834,7 @@ export default function Quotation() {
               city={formValues.city}
               state={formValues.state}
               pincode={formValues.pincode}
-              products={formValues.products as QuotationProductItem[]}
+              products={filledProductItems as QuotationProductItem[]}
               paymentTerms={formValues.paymentTerms}
               deliveryTerms={formValues.deliveryTerms}
               leadTime={formValues.leadTime}
