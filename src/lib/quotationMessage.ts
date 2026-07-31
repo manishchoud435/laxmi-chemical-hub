@@ -1,4 +1,5 @@
 import { COMPANY } from "@/data/company";
+import type { ShareChannel } from "@/lib/shareDocument";
 
 /** ₹1,23,456.00 — Indian digit grouping. */
 export const inr = (value: number) =>
@@ -80,12 +81,19 @@ function lineItems(items: QuotationMessageItem[]): string[] {
 }
 
 /**
- * Formal covering note that accompanies the shared PDF. WhatsApp and email get
- * the identical letter, so the customer reads the same official wording on
- * whichever channel it arrives. Built from the live form values, so the message
- * always matches the attachment.
+ * Formal covering note that accompanies the shared PDF. Both channels get the
+ * same official wording; the only difference is the sign-off. Email leaves it
+ * out because the mail client already appends the company signature, and
+ * repeating it would print the address and GSTIN twice. WhatsApp has no
+ * signature, so it carries one.
+ *
+ * Built from the live form values, so the message always matches the
+ * attachment.
  */
-export function quotationShareMessage(input: QuotationMessageInput): string {
+export function quotationShareMessage(
+  channel: ShareChannel,
+  input: QuotationMessageInput
+): string {
   const label = docLabelOf(input.isProforma);
   const docNo = clean(input.docNo);
   const dated = formatDocDate(input.docDate);
@@ -135,13 +143,14 @@ export function quotationShareMessage(input: QuotationMessageInput): string {
     "We trust the above is in line with your requirement. Should you need any clarification or a revision, kindly let us know.",
     "",
     "We look forward to your valued order.",
-    "",
-    "Thanks & regards,",
-    ...(signer ? [signer] : []),
-    COMPANY.name,
-    COMPANY.address,
-    `Phone : ${COMPANY.phone}`,
-    `Email : ${COMPANY.email}`,
-    `GSTIN : ${COMPANY.gst}`,
+    ...(channel === "whatsapp"
+      ? [
+          "",
+          "Thanks & regards,",
+          ...(signer ? [signer] : []),
+          COMPANY.name,
+          COMPANY.phone,
+        ]
+      : []),
   ].join("\n");
 }
