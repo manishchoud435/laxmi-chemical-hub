@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "@/components/ui/sonner";
 import { MsdsSheet } from "@/components/msds/MsdsSheet";
+import ShareDocumentButtons from "@/components/ShareDocumentButtons";
+import { saveBlob, type GeneratedFile } from "@/lib/shareDocument";
 import { msdsData, msdsProductNames } from "@/data/msdsData";
 import { COMPANY } from "@/data/company";
 
@@ -56,9 +58,10 @@ export default function Msds() {
     }
   };
 
-  const handleDownloadPdf = async () => {
+  /** Renders the sheet to a PDF blob, shared by the download and share actions. */
+  const buildPdf = async (): Promise<GeneratedFile | null> => {
     const sheet = previewRef.current?.querySelector(".msds-sheet") as HTMLElement | null;
-    if (!sheet) return;
+    if (!sheet) return null;
     setDownloading(true);
 
     const safe = data.productName.replace(/[^\w-]+/g, "_");
@@ -165,13 +168,19 @@ export default function Msds() {
         );
       });
 
-      pdf.save(filename);
+      return { blob: pdf.output("blob"), fileName: filename };
     } catch (err) {
       console.error(err);
       toast.error("Failed to generate the MSDS PDF. Please try again.");
+      return null;
     } finally {
       setDownloading(false);
     }
+  };
+
+  const handleDownloadPdf = async () => {
+    const file = await buildPdf();
+    if (file) saveBlob(file.blob, file.fileName);
   };
 
   if (!authenticated) {
@@ -246,6 +255,13 @@ export default function Msds() {
               <Button size="sm" onClick={handleDownloadPdf} disabled={downloading} className="text-xs sm:text-sm">
                 {downloading ? "Generating…" : "⬇ Download PDF"}
               </Button>
+              <ShareDocumentButtons
+                onGenerate={buildPdf}
+                disabled={downloading}
+                className="text-xs sm:text-sm"
+                title={`MSDS — ${data.productName} | ${COMPANY.name}`}
+                message={`Please find attached the Material Safety Data Sheet for ${data.productName}.\n\n${COMPANY.name}\n${COMPANY.phone}\n${COMPANY.email}`}
+              />
               <Button variant="outline" size="sm" onClick={() => window.print()} className="text-xs sm:text-sm">
                 Print
               </Button>

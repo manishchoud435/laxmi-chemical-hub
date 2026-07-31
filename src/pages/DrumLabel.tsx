@@ -7,6 +7,13 @@ import ChemicalLabel from "@/components/ChemicalLabel";
 import ThermalLabel from "@/components/ThermalLabel";
 import { productCategories } from "@/data/products";
 import { getProductSafety } from "@/data/productSafety";
+import { COMPANY } from "@/data/company";
+import {
+  saveBlob,
+  shareDocument,
+  type GeneratedFile,
+  type ShareChannel,
+} from "@/lib/shareDocument";
 import "@/components/ChemicalLabel.css";
 
 /* ── Types ─────────────────────────────────────────── */
@@ -49,6 +56,7 @@ const DrumLabel = () => {
   const previewRef = useRef<HTMLDivElement | null>(null);
   const exportRef = useRef<HTMLDivElement | null>(null);
   const [downloading, setDownloading] = useState(false);
+  const [sharing, setSharing] = useState<ShareChannel | null>(null);
 
   const [step, setStep] = useState<Step>("select-product");
   const [search, setSearch] = useState("");
@@ -141,9 +149,10 @@ const DrumLabel = () => {
     window.print();
   };
 
-  const handleDownloadPdf = async () => {
+  /** Renders the drum label to a PDF blob, shared by the download and share actions. */
+  const buildPdf = async (): Promise<GeneratedFile | null> => {
     const source = previewRef.current;
-    if (!source) return;
+    if (!source) return null;
     setDownloading(true);
 
     const safeProduct = (form.productName || "label").replace(/[^\w-]+/g, "_");
@@ -289,7 +298,7 @@ const DrumLabel = () => {
     `;
 
     try {
-      await html2pdf()
+      const blob = (await html2pdf()
         .from(source)
         .set({
           margin: 0,
@@ -326,12 +335,19 @@ const DrumLabel = () => {
           },
           jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
         })
-        .save();
+        .outputPdf("blob")) as Blob;
+      return { blob, fileName: filename };
     } catch (err) {
       console.error("PDF download failed", err);
+      return null;
     } finally {
       setDownloading(false);
     }
+  };
+
+  const handleDownloadPdf = async () => {
+    const file = await buildPdf();
+    if (file) saveBlob(file.blob, file.fileName);
   };
 
   const handleStartOver = () => {
@@ -482,8 +498,9 @@ const DrumLabel = () => {
     a.click();
   };
 
-  const handleDownloadThermalPdf = () => {
-    if (!thermalUrl || !thermalDims) return;
+  /** Builds the thermal-label PDF, shared by the download and share actions. */
+  const buildThermalPdf = (): GeneratedFile | null => {
+    if (!thermalUrl || !thermalDims) return null;
     const { wIn, hIn } = thermalDims;
     const orientation = wIn > hIn ? "landscape" : "portrait";
     const pdf = new jsPDF({ orientation, unit: "in", format: [wIn, hIn] });
@@ -494,7 +511,38 @@ const DrumLabel = () => {
       if (i > 0) pdf.addPage([wIn, hIn], orientation);
       pdf.addImage(thermalUrl, "PNG", 0, 0, pw, ph);
     }
-    pdf.save(`${safeName()}_${thermalSize}_thermal.pdf`);
+    return {
+      blob: pdf.output("blob"),
+      fileName: `${safeName()}_${thermalSize}_thermal.pdf`,
+    };
+  };
+
+  const handleDownloadThermalPdf = () => {
+    const file = buildThermalPdf();
+    if (file) saveBlob(file.blob, file.fileName);
+  };
+
+  /**
+   * Shares whichever PDF the current mode produces — the thermal label when a
+   * thermal size is picked, otherwise the A4 drum label.
+   */
+  const handleShare = async (channel: ShareChannel) => {
+    if (sharing) return;
+    setSharing(channel);
+    try {
+      const file: GeneratedFile | null = thermalSize
+        ? buildThermalPdf()
+        : await buildPdf();
+      if (!file) return;
+      const product = form.productName?.trim() || "product";
+      await shareDocument(channel, {
+        ...file,
+        title: `Drum label — ${product} | ${COMPANY.name}`,
+        message: `Please find attached the drum label for ${product}.\n\n${COMPANY.name}\n${COMPANY.phone}\n${COMPANY.email}`,
+      });
+    } finally {
+      setSharing(null);
+    }
   };
 
   /* ── Step Indicator ────────────────────────────────── */
@@ -645,6 +693,22 @@ const DrumLabel = () => {
                 </button>
               </>
             )}
+            <button
+              className="drum-label-page__btn drum-label-page__btn--back"
+              onClick={() => handleShare("whatsapp")}
+              disabled={downloading || sharing !== null}
+              title="Share the label PDF on WhatsApp"
+            >
+              {sharing === "whatsapp" ? "Preparing…" : "WhatsApp"}
+            </button>
+            <button
+              className="drum-label-page__btn drum-label-page__btn--back"
+              onClick={() => handleShare("email")}
+              disabled={downloading || sharing !== null}
+              title="Share the label PDF by email"
+            >
+              {sharing === "email" ? "Preparing…" : "Email"}
+            </button>
             <button
               className="drum-label-page__btn drum-label-page__btn--print"
               onClick={handlePrint}
