@@ -124,11 +124,20 @@ export async function shareDocument(
     try {
       await nav.share({ files: [file], title, text: message });
       if (channel === "whatsapp") {
-        toast.info(
-          messageCopied
-            ? "PDF shared. WhatsApp drops the caption, so the message is copied — paste it into the same chat."
-            : "PDF shared. WhatsApp drops the caption, so the message has to be typed or pasted separately."
-        );
+        // WhatsApp keeps the file and discards the text, so the note needs a
+        // second send. This is offered as a button rather than done
+        // automatically: the share sheet has already consumed the original tap,
+        // and opening WhatsApp without an active gesture is blocked as a popup.
+        toast.info("PDF sent. WhatsApp won't carry the message with a file.", {
+          duration: 30_000,
+          description: messageCopied
+            ? "Tap Send message and choose the same chat — or just paste, it's on the clipboard."
+            : "Tap Send message and choose the same chat.",
+          action: {
+            label: "Send message",
+            onClick: () => openExternal(channelUrl(channel, title, message), true),
+          },
+        });
       }
       return "shared";
     } catch (err) {
