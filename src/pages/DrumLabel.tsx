@@ -8,6 +8,7 @@ import ThermalLabel from "@/components/ThermalLabel";
 import { productCategories } from "@/data/products";
 import { getProductSafety } from "@/data/productSafety";
 import { COMPANY } from "@/data/company";
+import { toast } from "@/components/ui/sonner";
 import {
   copyToClipboard,
   saveBlob,
@@ -523,6 +524,22 @@ const DrumLabel = () => {
     if (file) saveBlob(file.blob, file.fileName);
   };
 
+  /** Covering note that goes with the label, shared by send and copy. */
+  const shareMessage = () => {
+    const product = form.productName?.trim() || "product";
+    return `Please find attached the drum label for ${product}.\n\n${COMPANY.name}\n${COMPANY.phone}\n${COMPANY.email}`;
+  };
+
+  /**
+   * WhatsApp keeps the file and drops the caption, so the note needs copying
+   * and pasting into the chat under the label.
+   */
+  const handleCopyMessage = async () => {
+    const copied = await copyToClipboard(shareMessage());
+    if (copied) toast.success("Message copied — paste it in the chat.");
+    else toast.error("Could not copy the message on this browser.");
+  };
+
   /**
    * Shares whichever PDF the current mode produces — the thermal label when a
    * thermal size is picked, otherwise the A4 drum label.
@@ -531,13 +548,13 @@ const DrumLabel = () => {
     if (sharing) return;
     setSharing(channel);
     try {
-      const product = form.productName?.trim() || "product";
-      const message = `Please find attached the drum label for ${product}.\n\n${COMPANY.name}\n${COMPANY.phone}\n${COMPANY.email}`;
+      const message = shareMessage();
 
       // WhatsApp drops the caption when a file is attached, so copy the message
       // before rendering, while the click gesture is still active.
       const messageCopied =
         channel === "whatsapp" ? await copyToClipboard(message) : false;
+      const product = form.productName?.trim() || "product";
 
       const file: GeneratedFile | null = thermalSize
         ? buildThermalPdf()
@@ -717,6 +734,13 @@ const DrumLabel = () => {
               title="Share the label PDF by email"
             >
               {sharing === "email" ? "Preparing…" : "Email"}
+            </button>
+            <button
+              className="drum-label-page__btn drum-label-page__btn--back"
+              onClick={handleCopyMessage}
+              title="Copy the covering note to paste into the chat"
+            >
+              Copy message
             </button>
             <button
               className="drum-label-page__btn drum-label-page__btn--print"
