@@ -57,6 +57,11 @@ function openExternal(url: string, newTab: boolean) {
   link.remove();
 }
 
+/** Open WhatsApp with the note prefilled, ready to send to a chosen chat. */
+export function openWhatsAppWithMessage(message: string) {
+  openExternal(`https://wa.me/?text=${encodeURIComponent(message)}`, true);
+}
+
 function channelUrl(channel: ShareChannel, title: string, message: string) {
   return channel === "whatsapp"
     ? `https://wa.me/?text=${encodeURIComponent(message)}`
@@ -129,7 +134,7 @@ export async function shareDocument(
         // automatically: the share sheet has already consumed the original tap,
         // and opening WhatsApp without an active gesture is blocked as a popup.
         toast.info("PDF sent. WhatsApp won't carry the message with a file.", {
-          duration: 30_000,
+          duration: 12_000,
           description: messageCopied
             ? "Tap Send message and choose the same chat — or just paste, it's on the clipboard."
             : "Tap Send message and choose the same chat.",
